@@ -1,0 +1,13 @@
+﻿---
+BasedOnStyle: Microsoft
+PointerAlignment: Left
+ColumnLimit: 132
+IndentWidth: 4
+TabWidth: 4
+UseTab: Always
+AlignConsecutiveDeclarations: true
+AlignAfterOpenBracket: AlwaysBreak
+AlignEscapedNewlines: Left
+Cpp11BracedListStyle: false
+
+...

@@ -1,10 +1,7 @@
 #pragma once
 
 #include "LibMath/Vector/Vec3.h"
+#include "LibMath/Matrix/Mat4x4.h"
+#include "LibMath/Quaternion.h"
 
 namespace LM_ = LibMath;
-
-LM_::Vec3 g_Origin(0.f);
-LM_::Vec3 g_Red(1.f, 0.f, 0.f);
-LM_::Vec3 g_Green(0.f, 1.f, 0.f);
-LM_::Vec3 g_Blue(0.f, 0.f, 1.f);

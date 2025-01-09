@@ -1,8 +1,8 @@
 #ifndef __LIBMATH__QUATERNION_H__
 #define __LIBMATH__QUATERNION_H__
 
+#include "LibMath/Matrix/Mat4x4.h"
 #include "LibMath/Vector/Vec4.h"
-#include <LibMath/Matrix/Mat4x4.h>
 
 namespace LibMath
 {

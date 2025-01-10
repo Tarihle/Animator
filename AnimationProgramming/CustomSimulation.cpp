@@ -142,8 +142,9 @@ void CustomSimulation::drawSkeleton(bool yes)
 
 		if (parent != -1)
 		{
-			bones[index] *= animLocalChildTransform * bones[parent];
-			drawLine(bones[parent].m_Position, bones[index].m_Position, { 1.f, 0.f, 1.f }, { 0.f, -100.f, 0.f });
+			bones[index] = animLocalChildTransform * bones[index];
+			bones[index] *= bones[parent];
+			drawLine(bones[index].m_Position, bones[parent].m_Position, { 1.f, 0.f, 1.f }, { 0.f, -100.f, 0.f });
 		}
 	}
 }

@@ -4,6 +4,10 @@
 
 struct Transform
 {
+	Transform(LM_::Vec3 pos, LM_::Quaternion rot) : m_Position(pos), m_Rotation(rot)
+	{
+	}
+
 	LM_::Vec3 m_Position;
 	LM_::Quaternion m_Rotation;
 

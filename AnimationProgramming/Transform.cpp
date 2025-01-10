@@ -36,18 +36,18 @@ Transform::operator LM_::Mat4() const
 	return LM_::Mat4(row1, row2, row3, row4);
 }
 
+Transform operator-(Transform const& pRight)
+{
+	return Transform(pRight.m_Position * -1, LM_::conjugate(pRight.m_Rotation), pRight.m_parentTransformIndex);
+}
+
 Transform operator*(Transform pLeft, Transform const& pRight)
 {
-	pLeft.m_Position += pRight.m_Position;
-	pLeft.m_Rotation *= pRight.m_Rotation;
-	return pLeft;
+	return pLeft *= pRight;
 }
 
 Transform& operator*=(Transform& pLeftRef, Transform const& pRight)
 {
-	//pLeftRef.m_Position += LM_::rotatePointVec3(pRight.m_Rotation, pRight.m_Position);
-	//pLeftRef.m_Position = LM_::rotatePointVec3(pRight.m_Rotation, pLeftRef.m_Position + pRight.m_Position);
-	//pLeftRef.m_Position -= LM_::rotatePointVec3(pRight.m_Rotation, pRight.m_Position);
 	pLeftRef.m_Position = LM_::rotatePointVec3(pRight.m_Rotation, pLeftRef.m_Position) + pRight.m_Position;
 	pLeftRef.m_Rotation = pRight.m_Rotation * pLeftRef.m_Rotation;
 	return pLeftRef;

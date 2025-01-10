@@ -157,7 +157,7 @@ Quaternion slerp(Quaternion const& q, Quaternion const& r, float t)
 	return q * std::sin(theta.radian() * 1 - t) + r * std::sin(theta.radian() * t) / std::sin(theta.radian());
 }
 
-Vec4 rotatePoint(Quaternion const& rot, Vec4 const& point)
+Vec4 rotatePointVec4(Quaternion const& rot, Vec4 const& point)
 {
 	Quaternion conjugate;
 	if (point.m_w != 0.f)
@@ -178,6 +178,26 @@ Vec4 rotatePoint(Quaternion const& rot, Vec4 const& point)
 	result *= conjugate;
 
 	return Vec4(result.m_b, result.m_c, result.m_d, result.m_a);
+}
+
+Vec3 rotatePointVec3(Quaternion const& rot, Vec3 const& point)
+{
+	Quaternion conjugate;
+	Quaternion pointQuat(0.f, point);
+
+	if (rot.isUnitQuaternion())
+	{
+		conjugate = LibMath::conjugate(rot);
+	}
+	else
+	{
+		conjugate = LibMath::conjugate(LibMath::normalize(rot));
+	}
+
+	Quaternion result = rot * pointQuat;
+	result *= conjugate;
+
+	return Vec3(result.m_b, result.m_c, result.m_d);
 }
 
 Mat4 toMat4(Quaternion const& quat)

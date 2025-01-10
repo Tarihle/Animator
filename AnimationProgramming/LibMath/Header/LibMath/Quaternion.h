@@ -2,7 +2,7 @@
 #define __LIBMATH__QUATERNION_H__
 
 #include "LibMath/Matrix/Mat4x4.h"
-#include "LibMath/Vector/Vec4.h"
+#include "LibMath/Vector.h"
 
 namespace LibMath
 {
@@ -23,12 +23,22 @@ class Quaternion
 	}
 
 	/// <summary>Components constructor.</summary>
+	/// <param name="a">: Component of the real part.</param>
+	/// <param name="b">: Component of the 'i' part.</param>
+	/// <param name="c">: Component of the 'j' part.</param>
+	/// <param name="d">: Component of the 'k' part.</param>
+	/// <returns>Quaternion with corresponding components.</returns>
+	Quaternion(float a, float b, float c, float d) : m_a(a), m_b(b), m_c(c), m_d(d)
+	{
+	}
+
+	/// <summary>Components constructor.</summary>
 	/// <param name="x">: Component of the real part.</param>
 	/// <param name="y">: Component of the 'i' part.</param>
 	/// <param name="z">: Component of the 'j' part.</param>
 	/// <param name="w">: Component of the 'k' part.</param>
 	/// <returns>Quaternion with corresponding components.</returns>
-	Quaternion(float a, float b, float c, float d) : m_a(a), m_b(b), m_c(c), m_d(d)
+	Quaternion(float w, Vec3 const& vec) : m_a(w), m_b(vec.m_x), m_c(vec.m_y), m_d(vec.m_z)
 	{
 	}
 
@@ -203,7 +213,13 @@ Quaternion slerp(Quaternion const& q, Quaternion const& r, float t);
 /// <param name="rot">: "Rotation" quaternion.</param>
 /// <param name="point">: Point to rotate.</param>
 /// <returns>Resulting point in Vec4 form.</returns>
-Vec4 rotatePoint(Quaternion const& rot, Vec4 const& point);
+Vec4 rotatePointVec4(Quaternion const& rot, Vec4 const& point);
+
+/// <summary>Rotates a point about an axis.</summary>
+/// <param name="rot">: "Rotation" quaternion.</param>
+/// <param name="point">: Point to rotate.</param>
+/// <returns>Resulting point in Vec4 form.</returns>
+Vec3 rotatePointVec3(Quaternion const& rot, Vec3 const& point);
 
 /// <summary>Converts a Quaternion to a Mat4.</summary>
 /// <param name="quat">: Quaternion to convert.</param>

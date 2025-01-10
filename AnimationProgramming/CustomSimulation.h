@@ -6,6 +6,9 @@
 #include "Simulation.h"
 
 #include "pch.h"
+#include "Transform.h"
+
+#include <vector>
 
 class CustomSimulation : public ISimulation
 {
@@ -19,11 +22,13 @@ class CustomSimulation : public ISimulation
 		LM_::Vec3 const& pStart, LM_::Vec3 const& pEnd, LM_::Vec3 const& pColor,
 		LM_::Vec3 const& pOffset = LM_::Vec3::zero()) const;
 
-	void drawSkeleton(int firstIndex, int lastIndex, LM_::Mat4 inverseBindMatrix);
+	void drawSkeleton(void);
 
 	void step1(float frameTime);
-	//void step2(float frameTime);
-	//void step3(float frameTime);
-	//void step4(float frameTime);
-	//void step5(float frameTime);
+	// void step2(float frameTime);
+	// void step3(float frameTime);
+	// void step4(float frameTime);
+	// void step5(float frameTime);
+
+	std::vector<Transform> m_Bones;
 };

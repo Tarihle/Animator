@@ -28,17 +28,25 @@ Transform::operator LM_::Mat4() const
 	//				   aSquared - bSquared + cSquared - dSquared, 2 * (cd - ab), m_Position.m_y, 2 * (bd - ac), 2 * (ab + cd),
 	//				   aSquared - bSquared - cSquared + dSquared, m_Position.m_z, 0.f, 0.f, 0.f, 1.f });
 
-	LM_::Vec4 row1 = { aSquared + bSquared - cSquared - dSquared, 2 * (bc - ad), 2 * (ac + bd), 0.f };
-	LM_::Vec4 row2 = { 2 * (ad + bc), aSquared - bSquared + cSquared - dSquared, 2 * (cd - ab), 0.f };
-	LM_::Vec4 row3 = { 2 * (bd - ac), 2 * (ab + cd), aSquared - bSquared - cSquared + dSquared, 0.f };
-	LM_::Vec4 row4 = { m_Position.m_x, m_Position.m_y, m_Position.m_z, 1.f };
+	LM_::Vec4 row1 = { aSquared + bSquared - cSquared - dSquared, 2 * (bc - ad), 2 * (ac + bd), m_Position.m_x };
+	LM_::Vec4 row2 = { 2 * (ad + bc), aSquared - bSquared + cSquared - dSquared, 2 * (cd - ab), m_Position.m_y };
+	LM_::Vec4 row3 = { 2 * (bd - ac), 2 * (ab + cd), aSquared - bSquared - cSquared + dSquared, m_Position.m_z };
+	LM_::Vec4 row4 = { 0.f, 0.f, 0.f, 1.f };
 
-	return LM_::Mat4(row1, row2, row3, row4);
+	//LM_::Vec4 row1 = { aSquared + bSquared - cSquared - dSquared, 2 * (bc - ad), 2 * (ac + bd), 0.f };
+	//LM_::Vec4 row2 = { 2 * (ad + bc), aSquared - bSquared + cSquared - dSquared, 2 * (cd - ab), 0.f };
+	//LM_::Vec4 row3 = { 2 * (bd - ac), 2 * (ab + cd), aSquared - bSquared - cSquared + dSquared, 0.f };
+	//LM_::Vec4 row4 = { m_Position.m_x, m_Position.m_y, m_Position.m_z, 1.f };
+
+	return LM_::Mat4(row1, row2, row3, row4).GetTranspose();
 }
 
 Transform operator-(Transform const& pRight)
 {
-	return Transform(pRight.m_Position * -1, LM_::conjugate(pRight.m_Rotation), pRight.m_parentTransformIndex);
+	return Transform(
+		LM_::rotatePointVec3(LM_::conjugate(pRight.m_Rotation), pRight.m_Position) * -1, LM_::conjugate(pRight.m_Rotation),
+		pRight.m_parentTransformIndex);
+	//return Transform(pRight.m_Position * -1, LM_::conjugate(pRight.m_Rotation), pRight.m_parentTransformIndex);
 }
 
 Transform operator*(Transform pLeft, Transform const& pRight)

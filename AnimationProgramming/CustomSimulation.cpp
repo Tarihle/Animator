@@ -43,6 +43,13 @@ void CustomSimulation::Init()
 	}
 
 	m_Bones.shrink_to_fit();
+
+	Transform test = { { -410, -450, 260 }, { 0.844623, -0.191342, -0.46194, 0.191342 }, 0 };
+	Transform inverted = -test;
+	LM_::Mat4 testMat = LM_::Mat4(test).GetInverse();
+	LM_::Mat4 invertedMat = LM_::Mat4(inverted);
+
+	float oui;
 }
 
 void CustomSimulation::Update(float frameTime)
@@ -56,8 +63,8 @@ void CustomSimulation::Update(float frameTime)
 	drawWorldMarker();
 
 	// step1(frameTime);
-	step2(frameTime);
-	// step3(frameTime);
+	// step2(frameTime);
+	step3(frameTime);
 	// step4(frameTime);
 	// step5(frameTime);
 }
@@ -77,6 +84,51 @@ void CustomSimulation::drawLine(
 		pEnd.m_y + pOffset.m_y, pEnd.m_z + pOffset.m_z, pColor.m_x, pColor.m_y, pColor.m_z);
 }
 
+std::vector<LM_::Mat4> CustomSimulation::calculateInverseBindPoseMatrices(void)
+{
+	std::vector<Transform> bones = m_Bones;
+	std::vector<LM_::Mat4> matrices(bones.size());
+
+	for (int index = 0; index < bones.size(); index++)
+	{
+		int parent = bones[index].m_parentTransformIndex;
+
+		if (parent != -1)
+		{
+			bones[index] *= bones[parent];
+		}
+		 matrices[index] = -bones[index];
+		//matrices[index] = LM_::Mat4(bones[index]).GetInverse();
+	}
+	return matrices;
+}
+
+std::vector<LM_::Mat4> CustomSimulation::calculatePaletteMatrices(void)
+{
+	std::vector<Transform> bones = m_Bones;
+	std::vector<LM_::Mat4> matrices(bones.size());
+
+	float posX, posY, posZ, quatW, quatX, quatY, quatZ;
+
+	for (int index = 0; index < bones.size(); index++)
+	{
+		int parent = bones[index].m_parentTransformIndex;
+
+		GetAnimLocalBoneTransform("ThirdPersonWalk.anim", index, g_keyFrame, posX, posY, posZ, quatW, quatX, quatY, quatZ);
+		Transform animLocalChildTransform({ { posX, posY, posZ }, { quatW, quatX, quatY, quatZ }, parent });
+
+		bones[index] = animLocalChildTransform * bones[index];
+		if (parent != -1)
+		{
+			bones[index] *= bones[parent];
+		}
+		matrices[index] = bones[index];
+		//matrices[index] = matrices[index].GetInverse();
+	}
+
+	return matrices;
+}
+
 void CustomSimulation::drawSkeletonstep1()
 {
 	std::vector<Transform> bones = m_Bones;
@@ -93,7 +145,7 @@ void CustomSimulation::drawSkeletonstep1()
 	}
 }
 
-void CustomSimulation::drawSkeleton()
+std::vector<Transform> CustomSimulation::drawSkeleton()
 {
 	std::vector<Transform> bones = m_Bones;
 
@@ -113,6 +165,8 @@ void CustomSimulation::drawSkeleton()
 			drawLine(bones[index].m_Position, bones[parent].m_Position, { 1.f, 0.f, 1.f }, { 0.f, -100.f, 0.f });
 		}
 	}
+
+	return bones;
 }
 
 void CustomSimulation::step1(float frameTime)
@@ -140,4 +194,40 @@ void CustomSimulation::step2(float frameTime)
 	}
 
 	drawSkeleton();
+}
+
+void CustomSimulation::step3(float frameTime)
+{
+	size_t keyCount = GetAnimKeyCount("ThirdPersonWalk.anim");
+
+	if (g_timeAcc < (1.f / keyCount))
+	{
+		g_timeAcc += frameTime;
+	}
+	else if (g_keyFrame < keyCount - 1)
+	{
+		g_timeAcc = 0.f;
+		++g_keyFrame;
+	}
+	else
+	{
+		g_timeAcc = 0.f;
+		g_keyFrame = 0;
+	}
+
+	drawSkeleton();
+
+	std::vector<LM_::Mat4> bonesPalette = calculatePaletteMatrices();
+	std::vector<LM_::Mat4> inverseBindPoses = calculateInverseBindPoseMatrices();
+	std::vector<LM_::Mat4> skinMatrices;
+
+	skinMatrices.reserve(inverseBindPoses.size());
+
+	for (int i = 0; i < inverseBindPoses.size(); i++)
+	{
+		// skinMatrices.push_back(inverseBindPoses[i] * bonesPalette[i]);
+		skinMatrices.push_back(bonesPalette[i] * inverseBindPoses[i]);
+	}
+
+	SetSkinningPose(&skinMatrices[0][0][0], skinMatrices.size());
 }

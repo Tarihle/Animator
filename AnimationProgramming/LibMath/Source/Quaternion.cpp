@@ -154,7 +154,7 @@ Quaternion slerp(Quaternion const& q, Quaternion const& r, float t)
 {
 	Radian theta = q.getVecPart().angleFrom(r.getVecPart());
 
-	return q * std::sin(theta.radian() * 1 - t) + r * std::sin(theta.radian() * t) / std::sin(theta.radian());
+	return q * std::sin(theta.radian() * (1 - t)) + r * std::sin(theta.radian() * t) / std::sin(theta.radian());
 }
 
 Vec4 rotatePointVec4(Quaternion const& rot, Vec4 const& point)

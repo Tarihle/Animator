@@ -22,12 +22,14 @@ class CustomSimulation : public ISimulation
 		LM_::Vec3 const& pStart, LM_::Vec3 const& pEnd, LM_::Vec3 const& pColor,
 		LM_::Vec3 const& pOffset = LM_::Vec3::zero()) const;
 
-	void drawSkeletonstep1(void);
-	void drawSkeleton(void);
+	std::vector<LM_::Mat4> calculateInverseBindPoseMatrices(void);
+	std::vector<LM_::Mat4> calculatePaletteMatrices(void);
+	void				   drawSkeletonstep1(void);
+	std::vector<Transform> drawSkeleton(void);
 
 	void step1(float frameTime);
 	void step2(float frameTime);
-	// void step3(float frameTime);
+	void step3(float frameTime);
 	// void step4(float frameTime);
 	// void step5(float frameTime);
 

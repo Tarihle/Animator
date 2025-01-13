@@ -200,7 +200,9 @@ class Quaternion;
 
 		/* COMPONENTS */
 
-		float m_w{ 0 }, m_z{ 0 }, m_y{ 0 }, m_x{ 0 };
+		//float m_w{ 0 }, m_x{ 0 }, m_y{ 0 }, m_z{ 0 };
+		float m_x{ 0 }, m_y{ 0 }, m_z{ 0 }, m_w{ 0 };
+		//float m_w{ 0 }, m_z{ 0 }, m_y{ 0 }, m_x{ 0 };
 	};
 
 	/* OUT-OF-CLASS OPERATORS */

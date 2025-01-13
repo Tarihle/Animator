@@ -5,7 +5,8 @@ LM_::Vec3 g_Red(1.f, 0.f, 0.f);
 LM_::Vec3 g_Green(0.f, 1.f, 0.f);
 LM_::Vec3 g_Blue(0.f, 0.f, 1.f);
 
-float g_Keyframe = 0;
+int g_keyFrame = 0;
+float g_timeAcc = 0.f;
 
 void CustomSimulation::Init()
 {
@@ -58,7 +59,7 @@ void CustomSimulation::Update(float frameTime)
 	{
 		frameTime = 1.0f / 60.0f;
 	}
-	// frameTime /= 100.0f;
+	 //frameTime /= 100.0f;
 
 	drawWorldMarker();
 
@@ -102,33 +103,6 @@ void CustomSimulation::drawSkeleton(bool yes)
 		return;
 	}
 
-	// float posX, posY, posZ, quatW, quatX, quatY, quatZ;
-
-	// int index = 0;
-	// for (auto bone : m_BonesTest)
-	//{
-	//	if (bone.m_parentTransformIndex != -1)
-	//	{
-	//		GetAnimLocalBoneTransform(
-	//			"ThirdPersonWalk.anim", bone.m_parentTransformIndex, 0, posX, posY, posZ, quatW, quatX, quatY, quatZ);
-	//		Transform animLocalParentTransform = { { posX, posY, posZ },
-	//											   { quatW, quatX, quatY, quatZ },
-	//											   m_BonesTest[bone.m_parentTransformIndex].m_parentTransformIndex };
-	//		// size_t keyCount = GetAnimKeyCount("ThirdPersonWalk.anim");
-
-	//		GetAnimLocalBoneTransform("ThirdPersonWalk.anim", index, 0, posX, posY, posZ, quatW, quatX, quatY, quatZ);
-	//		Transform animLocalChildTransform(
-	//			{ { posX, posY, posZ }, { quatW, quatX, quatY, quatZ }, bone.m_parentTransformIndex });
-	//		Transform child = bone /** animLocalChildTransform*/ * m_BonesTest[bone.m_parentTransformIndex];
-
-	//		Transform parent = m_BonesTest[bone.m_parentTransformIndex] /** animLocalParentTransform*/;
-
-	//		drawLine(child.m_Position, parent.m_Position, { 1.f, 0.f, 1.f }, { 0.f, -100.f, 0.f });
-	//	}
-
-	//	index++;
-	//}
-
 	std::vector<Transform> bones = m_BonesTest;
 
 	float posX, posY, posZ, quatW, quatX, quatY, quatZ;
@@ -137,7 +111,7 @@ void CustomSimulation::drawSkeleton(bool yes)
 	{
 		int parent = GetSkeletonBoneParentIndex(index);
 
-		GetAnimLocalBoneTransform("ThirdPersonWalk.anim", index, g_Keyframe, posX, posY, posZ, quatW, quatX, quatY, quatZ);
+		GetAnimLocalBoneTransform("ThirdPersonWalk.anim", index, g_keyFrame, posX, posY, posZ, quatW, quatX, quatY, quatZ);
 		Transform animLocalChildTransform({ { posX, posY, posZ }, { quatW, quatX, quatY, quatZ }, parent });
 
 		if (parent != -1)
@@ -158,13 +132,19 @@ void CustomSimulation::step2(float frameTime)
 {
 	size_t keyCount = GetAnimKeyCount("ThirdPersonWalk.anim");
 
-	if (g_Keyframe < keyCount)
+	if (g_timeAcc < (1.f / keyCount))
 	{
-		g_Keyframe += frameTime;
+		g_timeAcc += frameTime;
+	}
+	else if (g_keyFrame < keyCount - 1)
+	{
+		g_timeAcc = 0.f;
+		++g_keyFrame;
 	}
 	else
 	{
-		g_Keyframe = 0.f;
+		g_timeAcc = 0.f;
+		g_keyFrame = 0;
 	}
 
 	drawSkeleton(true);

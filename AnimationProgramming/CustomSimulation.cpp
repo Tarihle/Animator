@@ -5,7 +5,7 @@ LM_::Vec3 g_Red(1.f, 0.f, 0.f);
 LM_::Vec3 g_Green(0.f, 1.f, 0.f);
 LM_::Vec3 g_Blue(0.f, 0.f, 1.f);
 
-int g_keyFrame = 0;
+int	  g_keyFrame = 0;
 float g_timeAcc = 0.f;
 
 void CustomSimulation::Init()
@@ -28,7 +28,6 @@ void CustomSimulation::Init()
 
 	size_t boneCount = GetSkeletonBoneCount();
 	m_Bones.reserve(boneCount);
-	m_BonesTest.reserve(boneCount);
 
 	for (int index = 0; index < boneCount; index++)
 	{
@@ -41,16 +40,9 @@ void CustomSimulation::Init()
 
 		GetSkeletonBoneLocalBindTransform(index, posX, posY, posZ, quatW, quatX, quatY, quatZ);
 		m_Bones.push_back({ { posX, posY, posZ }, { quatW, quatX, quatY, quatZ }, parent });
-		m_BonesTest.push_back({ { posX, posY, posZ }, { quatW, quatX, quatY, quatZ }, parent });
-
-		if (parent != -1)
-		{
-			m_Bones[index] *= m_Bones[parent];
-		}
 	}
 
 	m_Bones.shrink_to_fit();
-	m_BonesTest.shrink_to_fit();
 }
 
 void CustomSimulation::Update(float frameTime)
@@ -59,7 +51,7 @@ void CustomSimulation::Update(float frameTime)
 	{
 		frameTime = 1.0f / 60.0f;
 	}
-	 //frameTime /= 100.0f;
+	// frameTime /= 100.0f;
 
 	drawWorldMarker();
 
@@ -85,31 +77,31 @@ void CustomSimulation::drawLine(
 		pEnd.m_y + pOffset.m_y, pEnd.m_z + pOffset.m_z, pColor.m_x, pColor.m_y, pColor.m_z);
 }
 
-void CustomSimulation::drawSkeleton()
+void CustomSimulation::drawSkeletonstep1()
 {
-	for (auto bone : m_Bones)
+	std::vector<Transform> bones = m_Bones;
+
+	for (int index = 0; index < bones.size(); index++)
 	{
-		if (bone.m_parentTransformIndex != -1)
+		int parent = bones[index].m_parentTransformIndex;
+
+		if (parent != -1)
 		{
-			drawLine(bone.m_Position, m_Bones[bone.m_parentTransformIndex].m_Position, { 1.f, 0.f, 1.f }, { 0.f, -100.f, 0.f });
+			bones[index] *= bones[parent];
+			drawLine(bones[index].m_Position, bones[parent].m_Position, { 1.f, 0.f, 1.f }, { 0.f, -100.f, 0.f });
 		}
 	}
 }
 
-void CustomSimulation::drawSkeleton(bool yes)
+void CustomSimulation::drawSkeleton()
 {
-	if (!yes)
-	{
-		return;
-	}
-
-	std::vector<Transform> bones = m_BonesTest;
+	std::vector<Transform> bones = m_Bones;
 
 	float posX, posY, posZ, quatW, quatX, quatY, quatZ;
 
 	for (int index = 0; index < bones.size(); index++)
 	{
-		int parent = GetSkeletonBoneParentIndex(index);
+		int parent = bones[index].m_parentTransformIndex;
 
 		GetAnimLocalBoneTransform("ThirdPersonWalk.anim", index, g_keyFrame, posX, posY, posZ, quatW, quatX, quatY, quatZ);
 		Transform animLocalChildTransform({ { posX, posY, posZ }, { quatW, quatX, quatY, quatZ }, parent });
@@ -125,7 +117,7 @@ void CustomSimulation::drawSkeleton(bool yes)
 
 void CustomSimulation::step1(float frameTime)
 {
-	drawSkeleton();
+	drawSkeletonstep1();
 }
 
 void CustomSimulation::step2(float frameTime)
@@ -147,5 +139,5 @@ void CustomSimulation::step2(float frameTime)
 		g_keyFrame = 0;
 	}
 
-	drawSkeleton(true);
+	drawSkeleton();
 }

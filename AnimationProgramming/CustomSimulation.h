@@ -22,8 +22,8 @@ class CustomSimulation : public ISimulation
 		LM_::Vec3 const& pStart, LM_::Vec3 const& pEnd, LM_::Vec3 const& pColor,
 		LM_::Vec3 const& pOffset = LM_::Vec3::zero()) const;
 
+	void drawSkeletonstep1(void);
 	void drawSkeleton(void);
-	void drawSkeleton(bool yes);
 
 	void step1(float frameTime);
 	void step2(float frameTime);
@@ -32,5 +32,4 @@ class CustomSimulation : public ISimulation
 	// void step5(float frameTime);
 
 	std::vector<Transform> m_Bones;
-	std::vector<Transform> m_BonesTest;
 };

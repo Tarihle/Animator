@@ -10,46 +10,43 @@ float g_timeAcc = 0.f;
 
 void CustomSimulation::Init()
 {
-	int			spine01 = GetSkeletonBoneIndex("spine_01");
-	int			spineParent = GetSkeletonBoneParentIndex(spine01);
-	const char* spineParentName = GetSkeletonBoneName(spineParent);
-
-	float  posX, posY, posZ, quatW, quatX, quatY, quatZ;
-	size_t keyCount = GetAnimKeyCount("ThirdPersonWalk.anim");
-	GetAnimLocalBoneTransform("ThirdPersonWalk.anim", spineParent, keyCount * 0.5f, posX, posY, posZ, quatW, quatX, quatY, quatZ);
-
-	// printf("Spine bone index : %d\n", spine01);
-	// printf("Spine parent bone : %s\n", spineParentName);
-	// printf("Spine parent bone index : %d\n", spineParent);
-	// printf("Skeleton bone count: %d\n", GetSkeletonBoneCount());
-	// printf("Anim key count : %u\n", keyCount);
-	// printf("Anim key : pos(%.2f,%.2f,%.2f) rotation quat(%.10f,%.10f,%.10f,%.10f)\n", posX, posY, posZ, quatW, quatX, quatY,
-	// quatZ);
+	float posX, posY, posZ, quatW, quatX, quatY, quatZ;
+	m_keyFrameCount = GetAnimKeyCount("ThirdPersonWalk.anim");
 
 	size_t boneCount = GetSkeletonBoneCount();
 	m_Bones.reserve(boneCount);
+	m_animFrameTransforms.reserve(m_keyFrameCount);
 
-	for (int index = 0; index < boneCount; index++)
+	for (int frame = 0; frame < m_keyFrameCount; frame++)
 	{
-		if (!memcmp("ik_", GetSkeletonBoneName(index), 3))
+		m_animFrameTransforms.push_back(std::vector<Transform>(boneCount));
+		// m_animFrameTransforms[frame].reserve(boneCount);
+		for (int index = 0; index < boneCount; index++)
 		{
-			continue;
+			if (!memcmp("ik_", GetSkeletonBoneName(index), 3))
+			{
+				m_animFrameTransforms[frame].pop_back();
+				continue;
+			}
+
+			int parent = GetSkeletonBoneParentIndex(index);
+
+			GetAnimLocalBoneTransform(
+				"ThirdPersonWalk.anim", index, frame, m_animFrameTransforms[frame][index].m_Position.m_x,
+				m_animFrameTransforms[frame][index].m_Position.m_y, m_animFrameTransforms[frame][index].m_Position.m_z,
+				m_animFrameTransforms[frame][index].m_Rotation.m_a, m_animFrameTransforms[frame][index].m_Rotation.m_b,
+				m_animFrameTransforms[frame][index].m_Rotation.m_c, m_animFrameTransforms[frame][index].m_Rotation.m_d);
+
+			if (frame == 0)
+			{
+				GetSkeletonBoneLocalBindTransform(index, posX, posY, posZ, quatW, quatX, quatY, quatZ);
+				m_Bones.push_back({ { posX, posY, posZ }, { quatW, quatX, quatY, quatZ }, parent });
+			}
 		}
-
-		int parent = GetSkeletonBoneParentIndex(index);
-
-		GetSkeletonBoneLocalBindTransform(index, posX, posY, posZ, quatW, quatX, quatY, quatZ);
-		m_Bones.push_back({ { posX, posY, posZ }, { quatW, quatX, quatY, quatZ }, parent });
+		m_animFrameTransforms[frame].shrink_to_fit();
 	}
 
 	m_Bones.shrink_to_fit();
-
-	Transform test = { { -410, -450, 260 }, { 0.844623, -0.191342, -0.46194, 0.191342 }, 0 };
-	Transform inverted = -test;
-	LM_::Mat4 testMat = LM_::Mat4(test).GetInverse();
-	LM_::Mat4 invertedMat = LM_::Mat4(inverted);
-
-	float oui;
 }
 
 void CustomSimulation::Update(float frameTime)
@@ -84,46 +81,66 @@ void CustomSimulation::drawLine(
 		pEnd.m_y + pOffset.m_y, pEnd.m_z + pOffset.m_z, pColor.m_x, pColor.m_y, pColor.m_z);
 }
 
-std::vector<LM_::Mat4> CustomSimulation::calculateInverseBindPoseMatrices(void)
+std::vector<Transform> CustomSimulation::calculateTransforms(TransformType transformType)
 {
 	std::vector<Transform> bones = m_Bones;
-	std::vector<LM_::Mat4> matrices(bones.size());
 
 	for (int index = 0; index < bones.size(); index++)
 	{
 		int parent = bones[index].m_parentTransformIndex;
 
+		if (transformType == TransformType::E_PALETTE)
+		{
+			bones[index] = m_animFrameTransforms[g_keyFrame][index] * bones[index];
+		}
 		if (parent != -1)
 		{
 			bones[index] *= bones[parent];
+			bones[index].m_parentTransformIndex = parent;
 		}
-		 matrices[index] = -bones[index];
-		//matrices[index] = LM_::Mat4(bones[index]).GetInverse();
+		if (transformType == TransformType::E_INVERSEBINDPOSE)
+		{
+			bones[index] = -(bones[index]);
+		}
+	}
+
+	return bones;
+}
+
+std::vector<LM_::Mat4> CustomSimulation::calculateInverseBindPoseMatrices(void)
+{
+	std::vector<Transform> bones = calculateTransforms(TransformType::E_BINDPOSE);
+	std::vector<LM_::Mat4> matrices(bones.size());
+
+	for (int index = 0; index < bones.size(); index++)
+	{
+		//int parent = bones[index].m_parentTransformIndex;
+
+		//if (parent != -1)
+		//{
+		//	bones[index] *= bones[parent];
+		//}
+		matrices[index] = -bones[index];
+		// matrices[index] = LM_::Mat4(bones[index]).GetInverse();
 	}
 	return matrices;
 }
 
 std::vector<LM_::Mat4> CustomSimulation::calculatePaletteMatrices(void)
 {
-	std::vector<Transform> bones = m_Bones;
+	std::vector<Transform> bones = calculateTransforms(TransformType::E_PALETTE);
 	std::vector<LM_::Mat4> matrices(bones.size());
-
-	float posX, posY, posZ, quatW, quatX, quatY, quatZ;
 
 	for (int index = 0; index < bones.size(); index++)
 	{
-		int parent = bones[index].m_parentTransformIndex;
+		//int parent = bones[index].m_parentTransformIndex;
 
-		GetAnimLocalBoneTransform("ThirdPersonWalk.anim", index, g_keyFrame, posX, posY, posZ, quatW, quatX, quatY, quatZ);
-		Transform animLocalChildTransform({ { posX, posY, posZ }, { quatW, quatX, quatY, quatZ }, parent });
-
-		bones[index] = animLocalChildTransform * bones[index];
-		if (parent != -1)
-		{
-			bones[index] *= bones[parent];
-		}
+		//bones[index] = m_animFrameTransforms[g_keyFrame][index] * bones[index];
+		//if (parent != -1)
+		//{
+		//	bones[index] *= bones[parent];
+		//}
 		matrices[index] = bones[index];
-		//matrices[index] = matrices[index].GetInverse();
 	}
 
 	return matrices;
@@ -131,7 +148,7 @@ std::vector<LM_::Mat4> CustomSimulation::calculatePaletteMatrices(void)
 
 void CustomSimulation::drawSkeletonstep1()
 {
-	std::vector<Transform> bones = m_Bones;
+	std::vector<Transform> bones = calculateTransforms(TransformType::E_BINDPOSE);
 
 	for (int index = 0; index < bones.size(); index++)
 	{
@@ -139,34 +156,24 @@ void CustomSimulation::drawSkeletonstep1()
 
 		if (parent != -1)
 		{
-			bones[index] *= bones[parent];
 			drawLine(bones[index].m_Position, bones[parent].m_Position, { 1.f, 0.f, 1.f }, { 0.f, -100.f, 0.f });
 		}
 	}
 }
 
-std::vector<Transform> CustomSimulation::drawSkeleton()
+void CustomSimulation::drawSkeleton()
 {
-	std::vector<Transform> bones = m_Bones;
-
-	float posX, posY, posZ, quatW, quatX, quatY, quatZ;
+	std::vector<Transform> bones = calculateTransforms(TransformType::E_PALETTE);
 
 	for (int index = 0; index < bones.size(); index++)
 	{
 		int parent = bones[index].m_parentTransformIndex;
 
-		GetAnimLocalBoneTransform("ThirdPersonWalk.anim", index, g_keyFrame, posX, posY, posZ, quatW, quatX, quatY, quatZ);
-		Transform animLocalChildTransform({ { posX, posY, posZ }, { quatW, quatX, quatY, quatZ }, parent });
-
 		if (parent != -1)
 		{
-			bones[index] = animLocalChildTransform * bones[index];
-			bones[index] *= bones[parent];
 			drawLine(bones[index].m_Position, bones[parent].m_Position, { 1.f, 0.f, 1.f }, { 0.f, -100.f, 0.f });
 		}
 	}
-
-	return bones;
 }
 
 void CustomSimulation::step1(float frameTime)
@@ -176,13 +183,11 @@ void CustomSimulation::step1(float frameTime)
 
 void CustomSimulation::step2(float frameTime)
 {
-	size_t keyCount = GetAnimKeyCount("ThirdPersonWalk.anim");
-
-	if (g_timeAcc < (1.f / keyCount))
+	if (g_timeAcc < (1.f / m_keyFrameCount))
 	{
 		g_timeAcc += frameTime;
 	}
-	else if (g_keyFrame < keyCount - 1)
+	else if (g_keyFrame < m_keyFrameCount - 1)
 	{
 		g_timeAcc = 0.f;
 		++g_keyFrame;
@@ -198,13 +203,11 @@ void CustomSimulation::step2(float frameTime)
 
 void CustomSimulation::step3(float frameTime)
 {
-	size_t keyCount = GetAnimKeyCount("ThirdPersonWalk.anim");
-
-	if (g_timeAcc < (1.f / keyCount))
+	if (g_timeAcc < (1.f / m_keyFrameCount))
 	{
 		g_timeAcc += frameTime;
 	}
-	else if (g_keyFrame < keyCount - 1)
+	else if (g_keyFrame < m_keyFrameCount - 1)
 	{
 		g_timeAcc = 0.f;
 		++g_keyFrame;
@@ -225,7 +228,6 @@ void CustomSimulation::step3(float frameTime)
 
 	for (int i = 0; i < inverseBindPoses.size(); i++)
 	{
-		// skinMatrices.push_back(inverseBindPoses[i] * bonesPalette[i]);
 		skinMatrices.push_back(bonesPalette[i] * inverseBindPoses[i]);
 	}
 

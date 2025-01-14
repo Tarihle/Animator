@@ -1,5 +1,16 @@
 #include "Transform.h"
 
+Transform::Transform(void)
+{
+	m_Position = LM_::Vec3::zero();
+	m_Rotation = LM_::Quaternion(0);
+}
+
+Transform::Transform(LM_::Vec3 pos, LM_::Quaternion rot, int parentIndex)
+	: m_Position(pos), m_Rotation(rot), m_parentTransformIndex(parentIndex)
+{
+}
+
 Transform::operator LM_::Mat4() const
 {
 	LM_::Quaternion copy(m_Rotation);

@@ -10,6 +10,13 @@
 
 #include <vector>
 
+enum class TransformType
+{
+	E_BINDPOSE,
+	E_INVERSEBINDPOSE,
+	E_PALETTE
+};
+
 class CustomSimulation : public ISimulation
 {
 	virtual void Init() override;
@@ -22,10 +29,11 @@ class CustomSimulation : public ISimulation
 		LM_::Vec3 const& pStart, LM_::Vec3 const& pEnd, LM_::Vec3 const& pColor,
 		LM_::Vec3 const& pOffset = LM_::Vec3::zero()) const;
 
+	std::vector<Transform> calculateTransforms(TransformType transformType);	
 	std::vector<LM_::Mat4> calculateInverseBindPoseMatrices(void);
 	std::vector<LM_::Mat4> calculatePaletteMatrices(void);
 	void				   drawSkeletonstep1(void);
-	std::vector<Transform> drawSkeleton(void);
+	void				   drawSkeleton(void);
 
 	void step1(float frameTime);
 	void step2(float frameTime);
@@ -33,5 +41,7 @@ class CustomSimulation : public ISimulation
 	// void step4(float frameTime);
 	// void step5(float frameTime);
 
-	std::vector<Transform> m_Bones;
+	std::vector<Transform>				m_Bones;
+	std::vector<std::vector<Transform>> m_animFrameTransforms;
+	size_t								m_keyFrameCount = 0;
 };

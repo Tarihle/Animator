@@ -4,12 +4,10 @@
 
 struct Transform
 {
-	Transform(LM_::Vec3 pos, LM_::Quaternion rot, int parentIndex)
-		: m_Position(pos), m_Rotation(rot), m_parentTransformIndex(parentIndex)
-	{
-	}
+	Transform(void);
+	Transform(LM_::Vec3 pos, LM_::Quaternion rot, int parentIndex);
 
-	int				m_parentTransformIndex;
+	int				m_parentTransformIndex = -1;
 	LM_::Vec3		m_Position;
 	LM_::Quaternion m_Rotation;
 

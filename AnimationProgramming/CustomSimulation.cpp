@@ -98,48 +98,25 @@ std::vector<Transform> CustomSimulation::calculateTransforms(TransformType trans
 			bones[index] *= bones[parent];
 			bones[index].m_parentTransformIndex = parent;
 		}
-		if (transformType == TransformType::E_INVERSEBINDPOSE)
+	}
+	if (transformType == TransformType::E_INVERSEBINDPOSE)
+	{
+		for (int index = 0; index < bones.size(); index++)
 		{
-			bones[index] = -(bones[index]);
+			bones[index] = -bones[index];
 		}
 	}
 
 	return bones;
 }
 
-std::vector<LM_::Mat4> CustomSimulation::calculateInverseBindPoseMatrices(void)
+std::vector<LM_::Mat4> CustomSimulation::calculateMatrices(TransformType transformType)
 {
-	std::vector<Transform> bones = calculateTransforms(TransformType::E_BINDPOSE);
+	std::vector<Transform> bones = calculateTransforms(transformType);
 	std::vector<LM_::Mat4> matrices(bones.size());
 
 	for (int index = 0; index < bones.size(); index++)
 	{
-		//int parent = bones[index].m_parentTransformIndex;
-
-		//if (parent != -1)
-		//{
-		//	bones[index] *= bones[parent];
-		//}
-		matrices[index] = -bones[index];
-		// matrices[index] = LM_::Mat4(bones[index]).GetInverse();
-	}
-	return matrices;
-}
-
-std::vector<LM_::Mat4> CustomSimulation::calculatePaletteMatrices(void)
-{
-	std::vector<Transform> bones = calculateTransforms(TransformType::E_PALETTE);
-	std::vector<LM_::Mat4> matrices(bones.size());
-
-	for (int index = 0; index < bones.size(); index++)
-	{
-		//int parent = bones[index].m_parentTransformIndex;
-
-		//bones[index] = m_animFrameTransforms[g_keyFrame][index] * bones[index];
-		//if (parent != -1)
-		//{
-		//	bones[index] *= bones[parent];
-		//}
 		matrices[index] = bones[index];
 	}
 
@@ -220,8 +197,8 @@ void CustomSimulation::step3(float frameTime)
 
 	drawSkeleton();
 
-	std::vector<LM_::Mat4> bonesPalette = calculatePaletteMatrices();
-	std::vector<LM_::Mat4> inverseBindPoses = calculateInverseBindPoseMatrices();
+	std::vector<LM_::Mat4> bonesPalette = calculateMatrices(TransformType::E_PALETTE);
+	std::vector<LM_::Mat4> inverseBindPoses = calculateMatrices(TransformType::E_INVERSEBINDPOSE);
 	std::vector<LM_::Mat4> skinMatrices;
 
 	skinMatrices.reserve(inverseBindPoses.size());

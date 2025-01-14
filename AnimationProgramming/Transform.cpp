@@ -25,7 +25,6 @@ Transform operator-(Transform const& pRight)
 	return Transform(
 		LM_::rotatePointVec3(LM_::conjugate(pRight.m_Rotation), pRight.m_Position) * -1, LM_::conjugate(pRight.m_Rotation),
 		pRight.m_parentTransformIndex);
-	// return Transform(pRight.m_Position * -1, LM_::conjugate(pRight.m_Rotation), pRight.m_parentTransformIndex);
 }
 
 Transform operator*(Transform pLeft, Transform const& pRight)

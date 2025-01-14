@@ -29,9 +29,8 @@ class CustomSimulation : public ISimulation
 		LM_::Vec3 const& pStart, LM_::Vec3 const& pEnd, LM_::Vec3 const& pColor,
 		LM_::Vec3 const& pOffset = LM_::Vec3::zero()) const;
 
-	std::vector<Transform> calculateTransforms(TransformType transformType);	
-	std::vector<LM_::Mat4> calculateInverseBindPoseMatrices(void);
-	std::vector<LM_::Mat4> calculatePaletteMatrices(void);
+	std::vector<Transform> calculateTransforms(TransformType transformType);
+	std::vector<LM_::Mat4> calculateMatrices(TransformType transformType);
 	void				   drawSkeletonstep1(void);
 	void				   drawSkeleton(void);
 

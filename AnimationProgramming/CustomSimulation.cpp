@@ -153,6 +153,24 @@ void CustomSimulation::drawSkeleton()
 	}
 }
 
+void CustomSimulation::UpdateKeyFrameTime(float frameTime)
+{
+	if (g_timeAcc < (1.f / m_keyFrameCount))
+	{
+		g_timeAcc += frameTime;
+	}
+	else if (g_keyFrame < m_keyFrameCount - 1)
+	{
+		g_timeAcc = 0.f;
+		++g_keyFrame;
+	}
+	else
+	{
+		g_timeAcc = 0.f;
+		g_keyFrame = 0;
+	}
+}
+
 void CustomSimulation::step1(float frameTime)
 {
 	drawSkeletonstep1();
@@ -160,40 +178,14 @@ void CustomSimulation::step1(float frameTime)
 
 void CustomSimulation::step2(float frameTime)
 {
-	if (g_timeAcc < (1.f / m_keyFrameCount))
-	{
-		g_timeAcc += frameTime;
-	}
-	else if (g_keyFrame < m_keyFrameCount - 1)
-	{
-		g_timeAcc = 0.f;
-		++g_keyFrame;
-	}
-	else
-	{
-		g_timeAcc = 0.f;
-		g_keyFrame = 0;
-	}
+	UpdateKeyFrameTime(frameTime);
 
 	drawSkeleton();
 }
 
 void CustomSimulation::step3(float frameTime)
 {
-	if (g_timeAcc < (1.f / m_keyFrameCount))
-	{
-		g_timeAcc += frameTime;
-	}
-	else if (g_keyFrame < m_keyFrameCount - 1)
-	{
-		g_timeAcc = 0.f;
-		++g_keyFrame;
-	}
-	else
-	{
-		g_timeAcc = 0.f;
-		g_keyFrame = 0;
-	}
+	UpdateKeyFrameTime(frameTime);
 
 	drawSkeleton();
 

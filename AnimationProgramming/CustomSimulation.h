@@ -20,19 +20,20 @@ enum class TransformType
 class CustomSimulation : public ISimulation
 {
 	virtual void Init() override;
-
 	virtual void Update(float frameTime) override;
 
 	void drawWorldMarker();
-
 	void drawLine(
 		LM_::Vec3 const& pStart, LM_::Vec3 const& pEnd, LM_::Vec3 const& pColor,
 		LM_::Vec3 const& pOffset = LM_::Vec3::zero()) const;
 
 	std::vector<Transform> calculateTransforms(TransformType transformType);
 	std::vector<LM_::Mat4> calculateMatrices(TransformType transformType);
-	void				   drawSkeletonstep1(void);
-	void				   drawSkeleton(void);
+
+	void drawSkeletonstep1(void);
+	void drawSkeleton(void);
+
+	void UpdateKeyFrameTime(float frameTime);
 
 	void step1(float frameTime);
 	void step2(float frameTime);

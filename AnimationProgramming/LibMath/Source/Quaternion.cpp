@@ -229,9 +229,12 @@ Mat4 toRotationMat4(Quaternion const& quat)
 
 	float cd = copy.m_c * copy.m_d;
 
-	return Mat4({ aSquared + bSquared - cSquared - dSquared, 2 * (bc - ad), 2 * (ac + bd), 0.f, 2 * (ad + bc),
-				  aSquared - bSquared + cSquared - dSquared, 2 * (cd - ab), 0.f, 2 * (bd - ac), 2 * (ab + cd),
-				  aSquared - bSquared - cSquared + dSquared, 0.f, 0.f, 0.f, 0.f, 1.f });
+	Vec4 row1 = { aSquared + bSquared - cSquared - dSquared, 2 * (bc + ad), 2 * (bd - ac), 0.f };
+	Vec4 row2 = { 2 * (bc - ad), aSquared - bSquared + cSquared - dSquared, 2 * (cd + ab), 0.f };
+	Vec4 row3 = { 2 * (bd + ac), 2 * (cd - ab), aSquared - bSquared - cSquared + dSquared, 0.f };
+	Vec4 row4 = { 0.f, 0.f, 0.f, 1.f };
+
+	return Mat4(row1, row2, row3, row4);
 }
 
 /* OUT-OF-CLASS OPERATORS */

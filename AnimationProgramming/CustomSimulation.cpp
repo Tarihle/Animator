@@ -19,6 +19,8 @@ void CustomSimulation::Init()
 	m_Bones.reserve(boneCount);
 	m_animFrameTransforms.reserve(m_keyFrameCount);
 
+	int middleIKAdjuster = 0;
+
 	for (int frame = 0; frame < m_keyFrameCount; frame++)
 	{
 		m_animFrameTransforms.push_back(std::vector<Transform>(boneCount));
@@ -28,10 +30,11 @@ void CustomSimulation::Init()
 			if (!memcmp("ik_", GetSkeletonBoneName(index), 3))
 			{
 				m_animFrameTransforms[frame].pop_back();
+				middleIKAdjuster++;
 				continue;
 			}
 
-			int parent = GetSkeletonBoneParentIndex(index);
+			int parent = GetSkeletonBoneParentIndex(index) - middleIKAdjuster;
 
 			GetAnimLocalBoneTransform(
 				"ThirdPersonWalk.anim", index, frame, m_animFrameTransforms[frame][index].m_Position.m_x,

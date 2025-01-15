@@ -28,17 +28,19 @@ class CustomSimulation : public ISimulation
 		LM_::Vec3 const& pOffset = LM_::Vec3::zero()) const;
 
 	std::vector<Transform> calculateTransforms(TransformType transformType);
+	std::vector<Transform> calculateInterpolatedTransforms(float lerpRatio);
 	std::vector<LM_::Mat4> calculateMatrices(TransformType transformType);
 
 	void drawSkeletonstep1(void);
 	void drawSkeleton(void);
+	void drawSkeletonSmooth(float frameTime);
 
-	void UpdateKeyFrameTime(float frameTime);
+	void updateKeyFrameTime(float frameTime);
 
 	void step1(float frameTime);
 	void step2(float frameTime);
 	void step3(float frameTime);
-	// void step4(float frameTime);
+	void step4(float frameTime);
 	// void step5(float frameTime);
 
 	std::vector<Transform>				m_Bones;

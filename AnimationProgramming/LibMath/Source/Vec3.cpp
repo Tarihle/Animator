@@ -48,7 +48,7 @@ namespace LibMath
 	Radian Vec3::angleFrom(Vec3 const& other) const
 	{
 		float dot = this->dot(other);
-		float radian = std::acosf(dot / (this->magnitude() * other.magnitude()));
+		float radian = std::acosf(Clamp(dot / (this->magnitude() * other.magnitude()), -1.f, 1.f));
 
 		return Radian(radian);
 	}

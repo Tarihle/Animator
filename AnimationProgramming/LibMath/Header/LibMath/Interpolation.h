@@ -6,19 +6,25 @@
 
 namespace LibMath
 {
+	/////<summary>Calculates the linear interpolation between 2 floats.</summary>
+	/////<param name="alpha">: First float.</param>
+	/////<param name="bravo">: Second float.</param>
+	/////<param name="ratio">: Decimal representation of a percentage.</param>
+	/////<returns>Resulting float.<returns>
+	//float	Lerp(float& alpha, float& bravo, float ratio);
 	///<summary>Calculates the linear interpolation between 2 floats.</summary>
 	///<param name="alpha">: First float.</param>
 	///<param name="bravo">: Second float.</param>
 	///<param name="ratio">: Decimal representation of a percentage.</param>
 	///<returns>Resulting float.<returns>
-	float	Lerp(float& alpha, float& bravo, float ratio);
+	float	Lerp(const float alpha, const float bravo, float ratio);
 
-	///<summary>Calculates the linear interpolation between 2 Vec2s.</summary>
-	///<param name="charlie">: First Vec2.</param>
-	///<param name="delta">: Second Vec2.</param>
-	///<param name="ratio">: Decimal representation of a percentage.</param>
-	///<returns>Resulting Vec2.<returns>
-	Vec2	Lerp(Vec2& charlie, Vec2& delta, float ratio);
+	/////<summary>Calculates the linear interpolation between 2 Vec2s.</summary>
+	/////<param name="charlie">: First Vec2.</param>
+	/////<param name="delta">: Second Vec2.</param>
+	/////<param name="ratio">: Decimal representation of a percentage.</param>
+	/////<returns>Resulting Vec2.<returns>
+	//Vec2	Lerp(Vec2& charlie, Vec2& delta, float ratio);
 
 	///<summary>Calculates the linear interpolation between 2 Vec3s.</summary>
 	///<param name="echo">: First Vec3.</param>
@@ -26,6 +32,13 @@ namespace LibMath
 	///<param name="ratio">: Decimal representation of a percentage.</param>
 	///<returns>Resulting Vec3.<returns>
 	Vec3	Lerp(Vec3& echo, Vec3& foxtrot, float ratio);
+
+	///<summary>Calculates the linear interpolation between 2 Vec3s.</summary>
+	///<param name="echo">: First Vec3.</param>
+	///<param name="foxtrot">: Second Vec3.</param>
+	///<param name="ratio">: Decimal representation of a percentage.</param>
+	///<returns>Resulting Vec3.<returns>
+	Vec3	Lerp(const Vec3 echo, const Vec3 foxtrot, float ratio);
 
 	///<summary>Calculates the linear interpolation between 2 Vec4s.</summary>
 	///<param name="kilo">: First Vec4.</param>

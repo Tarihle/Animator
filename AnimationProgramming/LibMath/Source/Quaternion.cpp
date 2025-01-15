@@ -1,8 +1,20 @@
 #include "LibMath/Quaternion.h"
+#include "LibMath/Interpolation.h"
 
 namespace LibMath
 {
 /* OPERATORS */
+//bool Quaternion::operator==(Quaternion const& other) const
+//{
+//	return (
+//		AlmostEqual(m_a, other.m_a) && AlmostEqual(m_b, other.m_b) && AlmostEqual(m_c, other.m_c) && AlmostEqual(m_d, other.m_d));
+//}
+//
+//bool Quaternion::operator!=(Quaternion const& other) const
+//{
+//	return !(
+//		AlmostEqual(m_a, other.m_a) && AlmostEqual(m_b, other.m_b) && AlmostEqual(m_c, other.m_c) && AlmostEqual(m_d, other.m_d));
+//}
 
 float& Quaternion::operator[](int index)
 {
@@ -101,6 +113,11 @@ Quaternion::operator Mat4(void) const
 	return Mat4({ m_a, -m_b, -m_c, -m_d, m_b, m_a, -m_d, m_c, m_c, m_d, m_a, -m_b, m_d, -m_c, m_b, m_a });
 }
 
+Quaternion::operator Vec4(void) const
+{
+	return Vec4(m_b, m_c, m_d, m_a);
+}
+
 /* FUNCTIONS */
 
 float Quaternion::magnitude(void) const
@@ -152,9 +169,37 @@ Quaternion normalize(Quaternion const& quat)
 
 Quaternion slerp(Quaternion const& q, Quaternion const& r, float t)
 {
-	Radian theta = q.getVecPart().angleFrom(r.getVecPart());
+	if (q == r || t == 0.f)
+	{
+		return q;
+	}
+	else if (t == 1.f)
+	{
+		return r;
+	}
 
-	return q * std::sin(theta.radian() * (1 - t)) + r * std::sin(theta.radian() * t) / std::sin(theta.radian());
+	Quaternion z = r;
+	float cosTheta = Vec4(q).dot(r);
+
+	// If cosTheta < 0, the interpolation will take the long way around the sphere.
+	// To fix this, one quat must be negated.
+	if (cosTheta < 0.f)
+	{
+		z = conjugate(r);
+		cosTheta = -cosTheta;
+	}
+
+	// Perform a linear interpolation when cosTheta is close to 1 to avoid side effect of sin(angle) becoming a zero denominator
+	if (cosTheta >= 1.f)
+	{
+		// Linear interpolation
+		return Quaternion(Lerp(q.m_a, z.m_a, t), Lerp(q.m_b, z.m_b, t), Lerp(q.m_c, z.m_c, t), Lerp(q.m_d, z.m_d, t));
+	}
+	else
+	{
+		float angle = std::acos(cosTheta);
+		return (std::sin((1.f - t) * angle) * q + std::sin(t * angle) * z) / std::sin(angle);
+	}
 }
 
 Vec4 rotatePointVec4(Quaternion const& rot, Vec4 const& point)

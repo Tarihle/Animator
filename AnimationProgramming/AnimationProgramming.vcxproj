@@ -198,6 +198,7 @@
     <ClCompile Include="CustomSimulation.cpp" />
     <ClCompile Include="LibMath\Source\Angle.cpp" />
     <ClCompile Include="LibMath\Source\Arithmetic.cpp" />
+    <ClCompile Include="LibMath\Source\Interpolation.cpp" />
     <ClCompile Include="LibMath\Source\Quaternion.cpp" />
     <ClCompile Include="LibMath\Source\Trigonometry.cpp" />
     <ClCompile Include="LibMath\Source\Vec3.cpp" />

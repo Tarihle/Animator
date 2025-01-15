@@ -7,6 +7,8 @@ LM_::Vec3 g_Blue(0.f, 0.f, 1.f);
 
 int	  g_keyFrame = 0;
 float g_timeAcc = 0.f;
+float g_timeAccTest = 0.f;
+size_t g_fps = 0;
 
 void CustomSimulation::Init()
 {
@@ -55,14 +57,14 @@ void CustomSimulation::Update(float frameTime)
 	{
 		frameTime = 1.0f / 60.0f;
 	}
-	// frameTime /= 100.0f;
+	 frameTime /= 10.0f;
 
 	drawWorldMarker();
 
 	// step1(frameTime);
 	// step2(frameTime);
-	step3(frameTime);
-	// step4(frameTime);
+	// step3(frameTime);
+	step4(frameTime);
 	// step5(frameTime);
 }
 
@@ -105,6 +107,35 @@ std::vector<Transform> CustomSimulation::calculateTransforms(TransformType trans
 		{
 			bones[index] = -bones[index];
 		}
+	}
+
+	return bones;
+}
+
+std::vector<Transform> CustomSimulation::calculateInterpolatedTransforms(float lerpRatio)
+{
+	std::vector<Transform> bones = m_Bones;
+	//std::cout << g_keyFrame << std::endl;
+
+	for (int index = 0; index < bones.size(); index++)
+	{
+		int parent = bones[index].m_parentTransformIndex;
+
+		int		  nextKeyFrame = (g_keyFrame + 1) % m_keyFrameCount;
+		Transform currentFrameBone = m_animFrameTransforms[g_keyFrame][index] * bones[index];
+		Transform nextFrameBone = m_animFrameTransforms[nextKeyFrame][index] * bones[index];
+		bones[index] = interpolate(currentFrameBone, nextFrameBone, lerpRatio);
+		// bones[index] = m_animFrameTransforms[g_keyFrame][index] * bones[index];
+		if (parent != -1)
+		{
+			bones[index] *= bones[parent];
+			bones[index].m_parentTransformIndex = parent;
+		}
+		//if (index < 4)
+		//{
+		//	std::cout << "Position: " << bones[index].m_Position << "\tQuaternion: " << bones[index].m_Rotation.m_a << ", "
+		//			  << bones[index].m_Rotation.getVecPart() << std::endl;
+		//}
 	}
 
 	return bones;
@@ -153,7 +184,22 @@ void CustomSimulation::drawSkeleton()
 	}
 }
 
-void CustomSimulation::UpdateKeyFrameTime(float frameTime)
+void CustomSimulation::drawSkeletonSmooth(float frameTime)
+{
+	std::vector<Transform> bones = calculateInterpolatedTransforms(frameTime);
+
+	for (int index = 0; index < bones.size(); index++)
+	{
+		int parent = bones[index].m_parentTransformIndex;
+
+		if (parent != -1)
+		{
+			drawLine(bones[index].m_Position, bones[parent].m_Position, { 1.f, 0.f, 1.f }, { 0.f, -100.f, 0.f });
+		}
+	}
+}
+
+void CustomSimulation::updateKeyFrameTime(float frameTime)
 {
 	if (g_timeAcc < (1.f / m_keyFrameCount))
 	{
@@ -168,6 +214,15 @@ void CustomSimulation::UpdateKeyFrameTime(float frameTime)
 	{
 		g_timeAcc = 0.f;
 		g_keyFrame = 0;
+		std::cout << g_fps << std::endl;
+		g_fps = 0;
+	}
+	g_fps++;
+
+	g_timeAccTest += frameTime;
+	if (g_timeAccTest >= 1.0f)
+	{
+		g_timeAccTest -= 1.0f;
 	}
 }
 
@@ -178,14 +233,14 @@ void CustomSimulation::step1(float frameTime)
 
 void CustomSimulation::step2(float frameTime)
 {
-	UpdateKeyFrameTime(frameTime);
+	updateKeyFrameTime(frameTime);
 
 	drawSkeleton();
 }
 
 void CustomSimulation::step3(float frameTime)
 {
-	UpdateKeyFrameTime(frameTime);
+	updateKeyFrameTime(frameTime);
 
 	drawSkeleton();
 
@@ -198,6 +253,29 @@ void CustomSimulation::step3(float frameTime)
 	for (int i = 0; i < inverseBindPoses.size(); i++)
 	{
 		skinMatrices.push_back(bonesPalette[i] * inverseBindPoses[i]);
+	}
+
+	SetSkinningPose(&skinMatrices[0][0][0], skinMatrices.size());
+}
+
+void CustomSimulation::step4(float frameTime)
+{
+	updateKeyFrameTime(frameTime);
+
+	//drawSkeletonSmooth(g_timeAccTest);
+	drawSkeletonSmooth(g_timeAcc * m_keyFrameCount);
+	 //drawSkeleton();
+
+	// std::vector<LM_::Mat4> bonesPalette = calculateMatrices(TransformType::E_PALETTE);
+	std::vector<Transform> bonesPalette = calculateInterpolatedTransforms(g_timeAcc * m_keyFrameCount);
+	std::vector<LM_::Mat4> inverseBindPoses = calculateMatrices(TransformType::E_INVERSEBINDPOSE);
+	std::vector<LM_::Mat4> skinMatrices;
+
+	skinMatrices.reserve(inverseBindPoses.size());
+
+	for (int i = 0; i < inverseBindPoses.size(); i++)
+	{
+		skinMatrices.push_back(LM_::Mat4(bonesPalette[i]) * inverseBindPoses[i]);
 	}
 
 	SetSkinningPose(&skinMatrices[0][0][0], skinMatrices.size());

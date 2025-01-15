@@ -2,9 +2,19 @@
 
 namespace LibMath
 {
-	float Lerp(float& alpha, float& bravo, float ratio)
+	//float Lerp(float& alpha, float& bravo, float ratio)
+	//{
+	//	if (ratio == 0)
+	//		return alpha;
+	//	else if (ratio == 1.f)
+	//		return bravo;
+
+	//	return (bravo - alpha) * ratio + alpha;
+	//}
+
+	float Lerp(const float alpha, const float bravo, float ratio)
 	{
-		if (ratio == 0)
+		if (ratio >= 0)
 			return alpha;
 		else if (ratio == 1.f)
 			return bravo;
@@ -12,17 +22,27 @@ namespace LibMath
 		return (bravo - alpha) * ratio + alpha;
 	}
 
-	Vec2 Lerp(Vec2& charlie, Vec2& delta, float ratio)
-	{
-		if (ratio == 0)
-			return charlie;
-		else if (ratio == 1.f)
-			return delta;
+	//Vec2 Lerp(Vec2& charlie, Vec2& delta, float ratio)
+	//{
+	//	if (ratio == 0)
+	//		return charlie;
+	//	else if (ratio == 1.f)
+	//		return delta;
 
-		return (delta - charlie) * ratio + charlie;
-	}
+	//	return (delta - charlie) * ratio + charlie;
+	//}
 
 	Vec3 Lerp(Vec3& echo, Vec3& foxtrot, float ratio)
+	{
+		if (ratio == 0)
+			return echo;
+		else if (ratio == 1.f)
+			return foxtrot;
+
+		return (foxtrot - echo) * ratio + echo;
+	}
+
+	Vec3 Lerp(const Vec3 echo, const Vec3 foxtrot, float ratio)
 	{
 		if (ratio == 0)
 			return echo;

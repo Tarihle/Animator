@@ -67,6 +67,16 @@ class Quaternion
 	/// <returns>Modified quaternion.</returns>
 	Quaternion& operator=(Quaternion&& other) = default;
 
+	/// <summary>Comparison operator.</summary>
+	/// <param name="other">: Quaternion to compare this with.</param>
+	/// <returns>True if equal.</returns>
+	bool operator==(Quaternion const& other) const = default;
+
+	/// <summary>Comparison operator.</summary>
+	/// <param name="other">: Quaternion to compare this with.</param>
+	/// <returns>True if different.</returns>
+	bool operator!=(Quaternion const& other) const = default;
+
 	/// <summary>Indexing components.</summary>
 	/// <param name="index">: Index of the wanted parameter.</param>
 	/// <returns>Corresponding component reference.</returns>
@@ -110,6 +120,10 @@ class Quaternion
 	/// <summary>Converts a Quaternion to a Mat4.</summary>
 	/// <returns>Quaternion in a 4x4 matrix form.</returns>
 	operator Mat4(void) const;
+
+	/// <summary>Converts a Quaternion to a Vec4.</summary>
+	/// <returns>Quaternion in a Vec4 form.</returns>
+	operator Vec4(void) const;
 
 	/*  CLASS FUNCTIONS */
 	/// <summary>Magnitude calculation.</summary>

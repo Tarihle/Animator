@@ -1,5 +1,4 @@
 #include "Transform.h"
-#include "LibMath/Matrix/Mat4x4.h"
 
 Transform::Transform(void)
 {
@@ -37,4 +36,9 @@ Transform& operator*=(Transform& pLeftRef, Transform const& pRight)
 	pLeftRef.m_Position = LM_::rotatePointVec3(pRight.m_Rotation, pLeftRef.m_Position) + pRight.m_Position;
 	pLeftRef.m_Rotation = pRight.m_Rotation * pLeftRef.m_Rotation;
 	return pLeftRef;
+}
+
+Transform interpolate(Transform const& pLeft, Transform const& pRight, float pAlpha)
+{
+	return Transform(LM_::Lerp(pLeft.m_Position, pRight.m_Position, pAlpha), LM_::slerp(pLeft.m_Rotation, pRight.m_Rotation, pAlpha), pLeft.m_parentTransformIndex);
 }

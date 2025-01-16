@@ -5,6 +5,7 @@
 #include "Engine.h"
 #include "Simulation.h"
 
+#include "Animation.h"
 #include "Transform.h"
 #include "pch.h"
 
@@ -41,9 +42,8 @@ class CustomSimulation : public ISimulation
 	void step2(float frameTime);
 	void step3(float frameTime);
 	void step4(float frameTime);
-	// void step5(float frameTime);
+	void step5(float frameTime);
 
-	std::vector<Transform>				m_Bones;
-	std::vector<std::vector<Transform>> m_animFrameTransforms;
-	size_t								m_keyFrameCount = 0;
+	std::vector<Transform> m_Bones;
+	std::vector<Animation> m_Animations;
 };

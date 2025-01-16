@@ -33,7 +33,7 @@ void CustomSimulation::Update(float frameTime)
 	{
 		frameTime = 1.0f / 60.0f;
 	}
-	//frameTime /= 10.0f;
+	 frameTime /= 10.0f;
 
 	drawWorldMarker();
 
@@ -115,6 +115,21 @@ std::vector<LM_::Mat4> CustomSimulation::calculateMatrices(int animIndex, Transf
 
 std::vector<Transform> CustomSimulation::interpolateAnims(int anim1, int anim2, float frameTime)
 {
+	/*std::cout << "KeyFrame 0: " << m_Animations[m_playingAnim].m_keyFrame << "\tPourcentage 0: "
+			  << (m_Animations[m_playingAnim].m_keyFrame + frameTime) / m_Animations[m_playingAnim].m_keyFrameCount
+			  << "\tKeyFrame 1: "
+			  << m_Animations[1].m_keyFrameCount * (m_Animations[m_playingAnim].m_keyFrame + frameTime) /
+					 m_Animations[m_playingAnim].m_keyFrameCount
+			  << std::endl;*/
+	if (g_crossFade == 0.f)
+	{
+		float pourcentage = (m_Animations[m_playingAnim].m_keyFrame + frameTime) / m_Animations[m_playingAnim].m_keyFrameCount;
+		float frame = m_Animations[anim2].m_keyFrameCount * pourcentage;
+
+		m_Animations[anim2].m_keyFrame = int(frame);
+		g_timeAcc2 = frame - int(frame);
+	}
+
 	updateKeyFrameTime(anim2, frameTime);
 	g_crossFade += frameTime;
 
@@ -248,7 +263,7 @@ void CustomSimulation::step5(float frameTime)
 		m_playingAnim = 1;
 	}
 	updateKeyFrameTime(frameTime);
-	//drawSkeleton(m_playingAnim, TransformType::E_INTERPOLATEDPALETTE, g_timeAcc * m_Animations[m_playingAnim].m_keyFrameCount);
+	// drawSkeleton(m_playingAnim, TransformType::E_INTERPOLATEDPALETTE, g_timeAcc * m_Animations[m_playingAnim].m_keyFrameCount);
 
 	std::vector<Transform> bonesPalette;
 

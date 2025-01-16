@@ -17,7 +17,8 @@ enum class TransformType
 {
 	E_BINDPOSE,
 	E_INVERSEBINDPOSE,
-	E_PALETTE
+	E_PALETTE,
+	E_INTERPOLATEDPALETTE
 };
 
 class CustomSimulation : public ISimulation
@@ -30,13 +31,10 @@ class CustomSimulation : public ISimulation
 		LM_::Vec3 const& pStart, LM_::Vec3 const& pEnd, LM_::Vec3 const& pColor,
 		LM_::Vec3 const& pOffset = LM_::Vec3::zero()) const;
 
-	std::vector<Transform> calculateTransforms(TransformType transformType);
-	std::vector<Transform> calculateInterpolatedTransforms(float lerpRatio);
+	std::vector<Transform> calculateTransforms(TransformType transformType, float lerpRatio = 0.f);
 	std::vector<LM_::Mat4> calculateMatrices(TransformType transformType);
 
-	void drawSkeletonstep1(void);
-	void drawSkeleton(void);
-	void drawSkeletonSmooth(float frameTime);
+	void drawSkeleton(TransformType transformType, float lerpRatio = 0.f);
 
 	void updateKeyFrameTime(float frameTime);
 

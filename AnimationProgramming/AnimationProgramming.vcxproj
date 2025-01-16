@@ -187,6 +187,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Animation.h" />
+    <ClInclude Include="Bone.h" />
     <ClInclude Include="CustomSimulation.h" />
     <ClInclude Include="Engine.h" />
     <ClInclude Include="pch.h" />
@@ -197,6 +198,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Animation.cpp" />
+    <ClCompile Include="Bone.cpp" />
     <ClCompile Include="CustomSimulation.cpp" />
     <ClCompile Include="LibMath\Source\Angle.cpp" />
     <ClCompile Include="LibMath\Source\Arithmetic.cpp" />

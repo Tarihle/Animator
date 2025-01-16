@@ -5,9 +5,9 @@
 struct Transform
 {
 	Transform(void);
-	Transform(LM_::Vec3 pos, LM_::Quaternion rot, int parentIndex);
+	Transform(LM_::Vec3 pos, LM_::Quaternion rot);
 
-	int				m_parentTransformIndex = -1;
+	//int				m_parentTransformIndex = -1;
 	LM_::Vec3		m_Position;
 	LM_::Quaternion m_Rotation;
 

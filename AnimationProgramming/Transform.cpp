@@ -6,8 +6,8 @@ Transform::Transform(void)
 	m_Rotation = LM_::Quaternion(0);
 }
 
-Transform::Transform(LM_::Vec3 pos, LM_::Quaternion rot, int parentIndex)
-	: m_Position(pos), m_Rotation(rot), m_parentTransformIndex(parentIndex)
+Transform::Transform(LM_::Vec3 pos, LM_::Quaternion rot)
+	: m_Position(pos), m_Rotation(rot)
 {
 }
 
@@ -22,8 +22,7 @@ Transform::operator LM_::Mat4() const
 Transform operator-(Transform const& pRight)
 {
 	return Transform(
-		LM_::rotatePointVec3(LM_::conjugate(pRight.m_Rotation), pRight.m_Position) * -1, LM_::conjugate(pRight.m_Rotation),
-		pRight.m_parentTransformIndex);
+		LM_::rotatePointVec3(LM_::conjugate(pRight.m_Rotation), pRight.m_Position) * -1, LM_::conjugate(pRight.m_Rotation));
 }
 
 Transform operator*(Transform pLeft, Transform const& pRight)
@@ -40,5 +39,5 @@ Transform& operator*=(Transform& pLeftRef, Transform const& pRight)
 
 Transform interpolate(Transform const& pLeft, Transform const& pRight, float pAlpha)
 {
-	return Transform(LM_::Lerp(pLeft.m_Position, pRight.m_Position, pAlpha), LM_::slerp(pLeft.m_Rotation, pRight.m_Rotation, pAlpha), pLeft.m_parentTransformIndex);
+	return Transform(LM_::Lerp(pLeft.m_Position, pRight.m_Position, pAlpha), LM_::slerp(pLeft.m_Rotation, pRight.m_Rotation, pAlpha));
 }

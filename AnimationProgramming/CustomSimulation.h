@@ -5,8 +5,9 @@
 #include "Engine.h"
 #include "Simulation.h"
 
-#include "Animation.h"
 #include "Transform.h"
+#include "Animation.h"
+#include "Bone.h"
 #include "pch.h"
 
 #include <vector>
@@ -44,6 +45,9 @@ class CustomSimulation : public ISimulation
 	void step4(float frameTime);
 	void step5(float frameTime);
 
-	std::vector<Transform> m_Bones;
+	//std::vector<Transform> m_Bones;
 	std::vector<Animation> m_Animations;
+
+	std::vector<Bone> m_Bones;
+	size_t			  m_boneCount;
 };

@@ -5,9 +5,10 @@
 #include "Engine.h"
 #include "Simulation.h"
 
-#include "Transform.h"
 #include "Animation.h"
 #include "Bone.h"
+#include "Skeleton.h"
+#include "Transform.h"
 #include "pch.h"
 
 #include <vector>
@@ -45,9 +46,9 @@ class CustomSimulation : public ISimulation
 	void step4(float frameTime);
 	void step5(float frameTime);
 
-	//std::vector<Transform> m_Bones;
+	// size_t				   m_boneCount;
 	std::vector<Animation> m_Animations;
-
-	std::vector<Bone> m_Bones;
-	size_t			  m_boneCount;
+	Skeleton			   m_Skeleton;
+	// std::vector<Bone>	   m_Bones;
+	// std::vector<LM_::Mat4> m_inverseBindPoses;
 };

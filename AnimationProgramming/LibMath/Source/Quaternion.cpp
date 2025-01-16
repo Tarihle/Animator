@@ -169,37 +169,53 @@ Quaternion normalize(Quaternion const& quat)
 
 Quaternion slerp(Quaternion const& q, Quaternion const& r, float t)
 {
-	if (q == r || t == 0.f)
+	if (q == r || t <= 0.f)
 	{
 		return q;
 	}
-	else if (t == 1.f)
+	else if (t >= 1.f)
 	{
 		return r;
 	}
 
-	Quaternion z = r;
-	float cosTheta = Vec4(q).dot(r);
+	//Quaternion z = r;
+	//float cosTheta = Vec4(q).dot(r);
 
-	// If cosTheta < 0, the interpolation will take the long way around the sphere.
-	// To fix this, one quat must be negated.
-	if (cosTheta < 0.f)
+	//// If cosTheta < 0, the interpolation will take the long way around the sphere.
+	//// To fix this, one quat must be negated.
+	//if (cosTheta < 0.f)
+	//{
+	//	z = conjugate(r);
+	//	cosTheta = -cosTheta;
+	//}
+
+	//// Perform a linear interpolation when cosTheta is close to 1 to avoid side effect of sin(angle) becoming a zero denominator
+	//if (cosTheta >= 1.f)
+	//{
+	//	// Linear interpolation
+	//	return Quaternion(Lerp(q.m_a, z.m_a, t), Lerp(q.m_b, z.m_b, t), Lerp(q.m_c, z.m_c, t), Lerp(q.m_d, z.m_d, t));
+	//}
+	//else
+	//{
+	//	float angle = std::acos(cosTheta);
+	//	return (std::sin((1.f - t) * angle) * q + std::sin(t * angle) * z) / std::sin(angle);
+	//}
+	float		cosTheta = Vec4(q).dot(r);
+	float const sign = cosTheta >= 0.f ? 1.f : -1.f;
+	cosTheta *= sign;
+
+	float qScale = 1.f - t;
+	float rScale = t * sign;
+
+	if (cosTheta < 1.f)
 	{
-		z = conjugate(r);
-		cosTheta = -cosTheta;
+		float const theta = std::acos(cosTheta);
+		float const invSin = 1.f / std::sin(theta);
+		qScale = std::sin(qScale * theta) * invSin;
+		rScale = std::sin(rScale * theta) * invSin;
 	}
 
-	// Perform a linear interpolation when cosTheta is close to 1 to avoid side effect of sin(angle) becoming a zero denominator
-	if (cosTheta >= 1.f)
-	{
-		// Linear interpolation
-		return Quaternion(Lerp(q.m_a, z.m_a, t), Lerp(q.m_b, z.m_b, t), Lerp(q.m_c, z.m_c, t), Lerp(q.m_d, z.m_d, t));
-	}
-	else
-	{
-		float angle = std::acos(cosTheta);
-		return (std::sin((1.f - t) * angle) * q + std::sin(t * angle) * z) / std::sin(angle);
-	}
+	return q * qScale + r * rScale;
 }
 
 Vec4 rotatePointVec4(Quaternion const& rot, Vec4 const& point)

@@ -44,7 +44,7 @@ namespace LibMath
 
 	Vec3 Lerp(const Vec3 echo, const Vec3 foxtrot, float ratio)
 	{
-		if (ratio == 0)
+		if (ratio == 0.f)
 			return echo;
 		else if (ratio == 1.f)
 			return foxtrot;

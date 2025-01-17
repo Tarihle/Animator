@@ -5,8 +5,8 @@ LM_::Vec3 g_Red(1.f, 0.f, 0.f);
 LM_::Vec3 g_Green(0.f, 1.f, 0.f);
 LM_::Vec3 g_Blue(0.f, 0.f, 1.f);
 
-float  g_crossFade = 0.f;
-size_t g_fps = 0;
+float g_crossFade = 0.f;
+float g_fps = 0.f;
 
 void CustomSimulation::Init()
 {
@@ -24,7 +24,7 @@ void CustomSimulation::Init()
 	m_Skeleton.m_inverseBindPoses = calculateMatrices(0, TransformType::E_INVERSEBINDPOSE);
 
 	m_globalTimeAcc = 0.5f + (rand() / (RAND_MAX / (5.5f - 0.5f))); // Random value between 0.5 and 5.5 seconds
-	//std::cout << g_randomTime << std::endl;
+																	// std::cout << g_randomTime << std::endl;
 }
 
 void CustomSimulation::Update(float frameTime)
@@ -33,7 +33,7 @@ void CustomSimulation::Update(float frameTime)
 	{
 		frameTime = 1.0f / 60.0f;
 	}
-	frameTime /= 10.0f;
+	// frameTime /= 10.0f;
 
 	drawWorldMarker();
 
@@ -158,30 +158,36 @@ void CustomSimulation::drawSkeleton(int animIndex, TransformType transformType, 
 
 void CustomSimulation::updateKeyFrameTime(float frameTime)
 {
-	if (m_Animations[m_playingAnim].m_timeAcc < (1.f / m_Animations[m_playingAnim].m_keyFrameCount))
+	if (m_Animations[m_playingAnim].m_timeAcc < (1.f / 30))
 	{
 		m_Animations[m_playingAnim].m_timeAcc += frameTime;
+		g_fps += 1.f;
 	}
 	else if (m_Animations[m_playingAnim].m_keyFrame < m_Animations[m_playingAnim].m_keyFrameCount - 1)
 	{
 		m_Animations[m_playingAnim].m_timeAcc = 0.f;
 		++m_Animations[m_playingAnim].m_keyFrame;
+		g_fps += 1.f + 0.01f;
 	}
 	else
 	{
 		m_Animations[m_playingAnim].m_timeAcc = 0.f;
 		m_Animations[m_playingAnim].m_keyFrame = 0;
-		std::cout << g_fps << std::endl;
-		g_fps = 0;
+		g_fps += 1.f + 0.01f;
 	}
-	g_fps++;
+
+	if ((g_fps - int(g_fps)) >= 0.3f)
+	{
+		std::cout << "FPS = " << int(g_fps) << std::endl;
+		g_fps = 0.f;
+	}
 
 	m_globalTimeAcc -= frameTime;
 }
 
 void CustomSimulation::updateKeyFrameTime(int animIndex, float frameTime)
 {
-	if (m_Animations[animIndex].m_timeAcc < (1.f / m_Animations[animIndex].m_keyFrameCount))
+	if (m_Animations[animIndex].m_timeAcc < (1.f / 30))
 	{
 		m_Animations[animIndex].m_timeAcc += frameTime;
 	}
@@ -251,7 +257,6 @@ void CustomSimulation::step4(float frameTime)
 
 void CustomSimulation::step5(float frameTime)
 {
-	//if (m_globalTimeAcc >= (g_randomTime + m_crossfadeTimeSpan))
 	if (m_globalTimeAcc <= -m_crossfadeTimeSpan)
 	{
 		m_playingAnim = (m_playingAnim == 0 ? 1 : 0);
@@ -263,7 +268,6 @@ void CustomSimulation::step5(float frameTime)
 	updateKeyFrameTime(frameTime);
 
 	std::vector<Transform> bonesPalette;
-	//if (m_globalTimeAcc >= g_randomTime && m_globalTimeAcc <= (g_randomTime + m_crossfadeTimeSpan))
 	if (m_globalTimeAcc <= 0.f && m_globalTimeAcc >= -m_crossfadeTimeSpan)
 	{
 		bonesPalette = (m_playingAnim == 0 ? interpolateAnims(0, 1, frameTime) : interpolateAnims(1, 0, frameTime));

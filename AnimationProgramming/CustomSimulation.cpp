@@ -25,8 +25,7 @@ void CustomSimulation::Init()
 
 	m_Skeleton.m_inverseBindPoses = calculateMatrices(0, TransformType::E_INVERSEBINDPOSE);
 
-	m_globalTimeAcc = 0.5f + (rand() / (RAND_MAX / (5.5f - 0.5f))); // Random value between 0.5 and 5.5 seconds
-																	// std::cout << g_randomTime << std::endl;
+	m_globalTimeAcc = 1.f + (rand() / (RAND_MAX / (3.5f - 1.f))); // Random value between 1 and 3.5 seconds
 }
 
 void CustomSimulation::Update(float frameTime)
@@ -35,7 +34,7 @@ void CustomSimulation::Update(float frameTime)
 	{
 		frameTime = 1.0f / 60.0f;
 	}
-	frameTime /= 10.0f;
+	//frameTime /= 10.0f;
 
 	drawWorldMarker();
 
@@ -256,7 +255,7 @@ void CustomSimulation::step5(float frameTime)
 	{
 		m_playingAnim = (m_playingAnim == 0 ? 1 : 0);
 		m_globalTimeAcc = 0.f;
-		m_globalTimeAcc = 2.5f + (rand() / (RAND_MAX / (5.5f - 2.5f))); // Random value between 0.5 and 5.5 seconds
+		m_globalTimeAcc = 1.f + (rand() / (RAND_MAX / (3.5f - 1.f)));
 		m_Animations[(m_playingAnim == 0 ? 1 : 0)].m_timeAcc = 0.f;
 		g_crossFade = 0.f;
 	}

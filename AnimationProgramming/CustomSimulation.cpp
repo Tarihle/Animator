@@ -7,7 +7,7 @@ LM_::Vec3 g_Blue(0.f, 0.f, 1.f);
 
 float  g_timeAcc = 0.f;
 float  g_timeAcc2 = 0.f;
-float  g_timeAccTest = 0.f;
+float  g_randomTime = 0.f;
 float  g_crossFade = 0.f;
 size_t g_fps = 0;
 
@@ -25,6 +25,9 @@ void CustomSimulation::Init()
 	}
 
 	m_Skeleton.m_inverseBindPoses = calculateMatrices(0, TransformType::E_INVERSEBINDPOSE);
+
+	g_randomTime = 3.5f + (rand() / (RAND_MAX / (5.5f - 3.5f))); // Random value between 0.5 and 5.5 seconds
+	std::cout << g_randomTime << std::endl;
 }
 
 void CustomSimulation::Update(float frameTime)
@@ -33,7 +36,7 @@ void CustomSimulation::Update(float frameTime)
 	{
 		frameTime = 1.0f / 60.0f;
 	}
-	 frameTime /= 10.0f;
+	// frameTime /= 10.0f;
 
 	drawWorldMarker();
 
@@ -177,13 +180,13 @@ void CustomSimulation::updateKeyFrameTime(float frameTime)
 	{
 		g_timeAcc = 0.f;
 		m_Animations[m_playingAnim].m_keyFrame = 0;
-		std::cout << g_fps << std::endl;
+		//std::cout << g_fps << std::endl;
 		g_fps = 0;
 	}
 	g_fps++;
 
 	// g_crossFade += frameTime;
-	g_timeAccTest += frameTime;
+	m_globalTimeAcc += frameTime;
 }
 
 void CustomSimulation::updateKeyFrameTime(int animIndex, float frameTime)
@@ -258,20 +261,21 @@ void CustomSimulation::step4(float frameTime)
 
 void CustomSimulation::step5(float frameTime)
 {
-	if (g_timeAccTest >= 1.f)
+	if (m_globalTimeAcc >= (g_randomTime + m_crossfadeTimeSpan))
 	{
-		m_playingAnim = 1;
+		m_playingAnim = (m_playingAnim == 0 ? 1 : 0);
+		m_globalTimeAcc = 0.f;
+		g_randomTime = 2.5f + (rand() / (RAND_MAX / (5.5f - 2.5f))); // Random value between 0.5 and 5.5 seconds
+		g_timeAcc = g_timeAcc2;
+		g_timeAcc2 = 0.f;
+		g_crossFade = 0.f;
 	}
 	updateKeyFrameTime(frameTime);
-	// drawSkeleton(m_playingAnim, TransformType::E_INTERPOLATEDPALETTE, g_timeAcc * m_Animations[m_playingAnim].m_keyFrameCount);
 
 	std::vector<Transform> bonesPalette;
-
-	std::vector<LM_::Mat4> skinMatrices;
-
-	if (g_timeAccTest >= 0.5f && g_timeAccTest <= 1.f)
+	if (m_globalTimeAcc >= g_randomTime && m_globalTimeAcc <= (g_randomTime + m_crossfadeTimeSpan))
 	{
-		bonesPalette = interpolateAnims(0, 1, frameTime);
+		bonesPalette = (m_playingAnim == 0 ? interpolateAnims(0, 1, frameTime) : interpolateAnims(1, 0, frameTime));
 	}
 	else
 	{
@@ -279,6 +283,7 @@ void CustomSimulation::step5(float frameTime)
 			m_playingAnim, TransformType::E_INTERPOLATEDPALETTE, g_timeAcc * m_Animations[m_playingAnim].m_keyFrameCount);
 	}
 
+	std::vector<LM_::Mat4> skinMatrices;
 	skinMatrices.reserve(m_Skeleton.m_inverseBindPoses.size());
 
 	for (int i = 0; i < m_Skeleton.m_inverseBindPoses.size(); i++)

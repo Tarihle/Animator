@@ -48,6 +48,8 @@ class CustomSimulation : public ISimulation
 	void step5(float frameTime);
 
 	int					   m_playingAnim = 0;
+	float				   m_globalTimeAcc = 0.f;
+	float				   m_crossfadeTimeSpan = 0.5f;
 	std::vector<Animation> m_Animations;
 	Skeleton			   m_Skeleton;
 };

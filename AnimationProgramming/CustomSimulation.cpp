@@ -5,8 +5,8 @@ LM_::Vec3 g_Red(1.f, 0.f, 0.f);
 LM_::Vec3 g_Green(0.f, 1.f, 0.f);
 LM_::Vec3 g_Blue(0.f, 0.f, 1.f);
 
-float  g_timeAcc = 0.f;
-float  g_timeAcc2 = 0.f;
+// float  g_timeAcc = 0.f;
+// float  g_timeAcc2 = 0.f;
 float  g_randomTime = 0.f;
 float  g_crossFade = 0.f;
 size_t g_fps = 0;
@@ -26,7 +26,7 @@ void CustomSimulation::Init()
 
 	m_Skeleton.m_inverseBindPoses = calculateMatrices(0, TransformType::E_INVERSEBINDPOSE);
 
-	g_randomTime = 3.5f + (rand() / (RAND_MAX / (5.5f - 3.5f))); // Random value between 0.5 and 5.5 seconds
+	g_randomTime = 0.5f + (rand() / (RAND_MAX / (5.5f - 0.5f))); // Random value between 0.5 and 5.5 seconds
 	std::cout << g_randomTime << std::endl;
 }
 
@@ -36,7 +36,7 @@ void CustomSimulation::Update(float frameTime)
 	{
 		frameTime = 1.0f / 60.0f;
 	}
-	// frameTime /= 10.0f;
+	frameTime /= 10.0f;
 
 	drawWorldMarker();
 
@@ -118,34 +118,28 @@ std::vector<LM_::Mat4> CustomSimulation::calculateMatrices(int animIndex, Transf
 
 std::vector<Transform> CustomSimulation::interpolateAnims(int anim1, int anim2, float frameTime)
 {
-	/*std::cout << "KeyFrame 0: " << m_Animations[m_playingAnim].m_keyFrame << "\tPourcentage 0: "
-			  << (m_Animations[m_playingAnim].m_keyFrame + frameTime) / m_Animations[m_playingAnim].m_keyFrameCount
-			  << "\tKeyFrame 1: "
-			  << m_Animations[1].m_keyFrameCount * (m_Animations[m_playingAnim].m_keyFrame + frameTime) /
-					 m_Animations[m_playingAnim].m_keyFrameCount
-			  << std::endl;*/
 	if (g_crossFade == 0.f)
 	{
 		float pourcentage = (m_Animations[m_playingAnim].m_keyFrame + frameTime) / m_Animations[m_playingAnim].m_keyFrameCount;
 		float frame = m_Animations[anim2].m_keyFrameCount * pourcentage;
 
 		m_Animations[anim2].m_keyFrame = int(frame);
-		g_timeAcc2 = frame - int(frame);
+		m_Animations[anim2].m_timeAcc = frame - int(frame);
 	}
 
 	updateKeyFrameTime(anim2, frameTime);
 	g_crossFade += frameTime;
 
-	std::vector<Transform> bonesPalette1 =
-		calculateTransforms(anim1, TransformType::E_INTERPOLATEDPALETTE, g_timeAcc * m_Animations[anim1].m_keyFrameCount);
+	std::vector<Transform> bonesPalette1 = calculateTransforms(
+		anim1, TransformType::E_INTERPOLATEDPALETTE, m_Animations[anim1].m_timeAcc * m_Animations[anim1].m_keyFrameCount);
 
-	std::vector<Transform> bonesPalette2 =
-		calculateTransforms(anim2, TransformType::E_INTERPOLATEDPALETTE, g_timeAcc2 * m_Animations[anim2].m_keyFrameCount);
+	std::vector<Transform> bonesPalette2 = calculateTransforms(
+		anim2, TransformType::E_INTERPOLATEDPALETTE, m_Animations[anim2].m_timeAcc * m_Animations[anim2].m_keyFrameCount);
 
 	std::vector<Transform> interpolated(bonesPalette1.size());
 	for (int i = 0; i < bonesPalette1.size(); i++)
 	{
-		interpolated[i] = interpolate(bonesPalette1[i], bonesPalette2[i], g_crossFade * 2.f); //* 2 = / 0.5f
+		interpolated[i] = interpolate(bonesPalette1[i], bonesPalette2[i], g_crossFade / m_crossfadeTimeSpan); //* 2 = / 0.5f
 	}
 
 	return interpolated;
@@ -167,20 +161,20 @@ void CustomSimulation::drawSkeleton(int animIndex, TransformType transformType, 
 
 void CustomSimulation::updateKeyFrameTime(float frameTime)
 {
-	if (g_timeAcc < (1.f / m_Animations[m_playingAnim].m_keyFrameCount))
+	if (m_Animations[m_playingAnim].m_timeAcc < (1.f / m_Animations[m_playingAnim].m_keyFrameCount))
 	{
-		g_timeAcc += frameTime;
+		m_Animations[m_playingAnim].m_timeAcc += frameTime;
 	}
 	else if (m_Animations[m_playingAnim].m_keyFrame < m_Animations[m_playingAnim].m_keyFrameCount - 1)
 	{
-		g_timeAcc = 0.f;
+		m_Animations[m_playingAnim].m_timeAcc = 0.f;
 		++m_Animations[m_playingAnim].m_keyFrame;
 	}
 	else
 	{
-		g_timeAcc = 0.f;
+		m_Animations[m_playingAnim].m_timeAcc = 0.f;
 		m_Animations[m_playingAnim].m_keyFrame = 0;
-		//std::cout << g_fps << std::endl;
+		std::cout << g_fps << std::endl;
 		g_fps = 0;
 	}
 	g_fps++;
@@ -191,18 +185,18 @@ void CustomSimulation::updateKeyFrameTime(float frameTime)
 
 void CustomSimulation::updateKeyFrameTime(int animIndex, float frameTime)
 {
-	if (g_timeAcc2 < (1.f / m_Animations[animIndex].m_keyFrameCount))
+	if (m_Animations[animIndex].m_timeAcc < (1.f / m_Animations[animIndex].m_keyFrameCount))
 	{
-		g_timeAcc2 += frameTime;
+		m_Animations[animIndex].m_timeAcc += frameTime;
 	}
 	else if (m_Animations[animIndex].m_keyFrame < m_Animations[animIndex].m_keyFrameCount - 1)
 	{
-		g_timeAcc2 = 0.f;
+		m_Animations[animIndex].m_timeAcc = 0.f;
 		++m_Animations[animIndex].m_keyFrame;
 	}
 	else
 	{
-		g_timeAcc2 = 0.f;
+		m_Animations[animIndex].m_timeAcc = 0.f;
 		m_Animations[animIndex].m_keyFrame = 0;
 	}
 }
@@ -243,10 +237,10 @@ void CustomSimulation::step4(float frameTime)
 	updateKeyFrameTime(m_playingAnim, frameTime);
 	// updateKeyFrameTime(frameTime);
 
-	drawSkeleton(0, TransformType::E_INTERPOLATEDPALETTE, g_timeAcc * m_Animations[0].m_keyFrameCount);
+	drawSkeleton(0, TransformType::E_INTERPOLATEDPALETTE, m_Animations[0].m_timeAcc * m_Animations[0].m_keyFrameCount);
 
 	std::vector<Transform> bonesPalette =
-		calculateTransforms(0, TransformType::E_INTERPOLATEDPALETTE, g_timeAcc * m_Animations[0].m_keyFrameCount);
+		calculateTransforms(0, TransformType::E_INTERPOLATEDPALETTE, m_Animations[0].m_timeAcc * m_Animations[0].m_keyFrameCount);
 	std::vector<LM_::Mat4> skinMatrices;
 
 	skinMatrices.reserve(m_Skeleton.m_inverseBindPoses.size());
@@ -266,8 +260,9 @@ void CustomSimulation::step5(float frameTime)
 		m_playingAnim = (m_playingAnim == 0 ? 1 : 0);
 		m_globalTimeAcc = 0.f;
 		g_randomTime = 2.5f + (rand() / (RAND_MAX / (5.5f - 2.5f))); // Random value between 0.5 and 5.5 seconds
-		g_timeAcc = g_timeAcc2;
-		g_timeAcc2 = 0.f;
+		//g_timeAcc = g_timeAcc2;
+		//g_timeAcc2 = 0.f;
+		m_Animations[(m_playingAnim == 0 ? 1 : 0)].m_timeAcc = 0.f;
 		g_crossFade = 0.f;
 	}
 	updateKeyFrameTime(frameTime);
@@ -280,7 +275,8 @@ void CustomSimulation::step5(float frameTime)
 	else
 	{
 		bonesPalette = calculateTransforms(
-			m_playingAnim, TransformType::E_INTERPOLATEDPALETTE, g_timeAcc * m_Animations[m_playingAnim].m_keyFrameCount);
+			m_playingAnim, TransformType::E_INTERPOLATEDPALETTE,
+			m_Animations[m_playingAnim].m_timeAcc * m_Animations[m_playingAnim].m_keyFrameCount);
 	}
 
 	std::vector<LM_::Mat4> skinMatrices;

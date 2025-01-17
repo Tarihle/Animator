@@ -11,6 +11,7 @@ struct Animation
 
 	size_t								m_keyFrameCount = 0;
 	unsigned int						m_keyFrame = 0;
+	float								m_timeAcc = 0.f;
 	const char*							m_Name = nullptr;
 	std::vector<std::vector<Transform>> m_animFrameTransforms;
 };

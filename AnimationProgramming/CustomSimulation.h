@@ -19,7 +19,6 @@ enum class TransformType
 	E_INVERSEBINDPOSE,
 	E_PALETTE,
 	E_INTERPOLATEDPALETTE,
-	E_INTERPOLATEDANIMS
 };
 
 class CustomSimulation : public ISimulation

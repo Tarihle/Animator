@@ -42,8 +42,8 @@ void CustomSimulation::Update(float frameTime)
 	// step1(frameTime);
 	// step2(frameTime);
 	// step3(frameTime);
-	 step4(frameTime);
-	//step5(frameTime);
+	// step4(frameTime);
+	step5(frameTime);
 }
 
 void CustomSimulation::drawWorldMarker()
@@ -64,8 +64,7 @@ void CustomSimulation::drawLine(
 std::vector<Transform> CustomSimulation::calculateTransforms(int animIndex, TransformType transformType, float lerpRatio)
 {
 	std::vector<Transform> bones(m_Skeleton.m_boneCount);
-
-	for (int index = 0; index < bones.size(); index++)
+	for (int index = 0; index < m_Skeleton.m_boneCount; index++)
 	{
 		bones[index] = m_Skeleton.m_Bones[index].m_localTransform;
 
@@ -81,10 +80,6 @@ std::vector<Transform> CustomSimulation::calculateTransforms(int animIndex, Tran
 			Transform nextFrameBone = m_Animations[animIndex].m_animFrameTransforms[nextKeyFrame][index] * bones[index];
 			bones[index] = interpolate(currentFrameBone, nextFrameBone, lerpRatio);
 		}
-		else if (transformType == TransformType::E_INTERPOLATEDANIMS)
-		{
-		}
-
 		int parent = m_Skeleton.m_Bones[index].m_parentIndex;
 		if (parent != -1)
 		{
@@ -98,7 +93,6 @@ std::vector<Transform> CustomSimulation::calculateTransforms(int animIndex, Tran
 			bones[index] = -bones[index];
 		}
 	}
-
 	return bones;
 }
 
@@ -238,8 +232,7 @@ void CustomSimulation::step3(float frameTime)
 
 void CustomSimulation::step4(float frameTime)
 {
-	//updateKeyFrameTime(m_playingAnim, frameTime);
-	 updateKeyFrameTime(frameTime);
+	updateKeyFrameTime(frameTime);
 
 	drawSkeleton(0, TransformType::E_INTERPOLATEDPALETTE, m_Animations[0].m_timeAcc * SAMPLE_RATE);
 

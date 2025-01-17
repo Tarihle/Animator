@@ -5,9 +5,6 @@ LM_::Vec3 g_Red(1.f, 0.f, 0.f);
 LM_::Vec3 g_Green(0.f, 1.f, 0.f);
 LM_::Vec3 g_Blue(0.f, 0.f, 1.f);
 
-// float  g_timeAcc = 0.f;
-// float  g_timeAcc2 = 0.f;
-float  g_randomTime = 0.f;
 float  g_crossFade = 0.f;
 size_t g_fps = 0;
 
@@ -26,8 +23,8 @@ void CustomSimulation::Init()
 
 	m_Skeleton.m_inverseBindPoses = calculateMatrices(0, TransformType::E_INVERSEBINDPOSE);
 
-	g_randomTime = 0.5f + (rand() / (RAND_MAX / (5.5f - 0.5f))); // Random value between 0.5 and 5.5 seconds
-	std::cout << g_randomTime << std::endl;
+	m_globalTimeAcc = 0.5f + (rand() / (RAND_MAX / (5.5f - 0.5f))); // Random value between 0.5 and 5.5 seconds
+	//std::cout << g_randomTime << std::endl;
 }
 
 void CustomSimulation::Update(float frameTime)
@@ -179,8 +176,7 @@ void CustomSimulation::updateKeyFrameTime(float frameTime)
 	}
 	g_fps++;
 
-	// g_crossFade += frameTime;
-	m_globalTimeAcc += frameTime;
+	m_globalTimeAcc -= frameTime;
 }
 
 void CustomSimulation::updateKeyFrameTime(int animIndex, float frameTime)
@@ -255,20 +251,20 @@ void CustomSimulation::step4(float frameTime)
 
 void CustomSimulation::step5(float frameTime)
 {
-	if (m_globalTimeAcc >= (g_randomTime + m_crossfadeTimeSpan))
+	//if (m_globalTimeAcc >= (g_randomTime + m_crossfadeTimeSpan))
+	if (m_globalTimeAcc <= -m_crossfadeTimeSpan)
 	{
 		m_playingAnim = (m_playingAnim == 0 ? 1 : 0);
 		m_globalTimeAcc = 0.f;
-		g_randomTime = 2.5f + (rand() / (RAND_MAX / (5.5f - 2.5f))); // Random value between 0.5 and 5.5 seconds
-		//g_timeAcc = g_timeAcc2;
-		//g_timeAcc2 = 0.f;
+		m_globalTimeAcc = 2.5f + (rand() / (RAND_MAX / (5.5f - 2.5f))); // Random value between 0.5 and 5.5 seconds
 		m_Animations[(m_playingAnim == 0 ? 1 : 0)].m_timeAcc = 0.f;
 		g_crossFade = 0.f;
 	}
 	updateKeyFrameTime(frameTime);
 
 	std::vector<Transform> bonesPalette;
-	if (m_globalTimeAcc >= g_randomTime && m_globalTimeAcc <= (g_randomTime + m_crossfadeTimeSpan))
+	//if (m_globalTimeAcc >= g_randomTime && m_globalTimeAcc <= (g_randomTime + m_crossfadeTimeSpan))
+	if (m_globalTimeAcc <= 0.f && m_globalTimeAcc >= -m_crossfadeTimeSpan)
 	{
 		bonesPalette = (m_playingAnim == 0 ? interpolateAnims(0, 1, frameTime) : interpolateAnims(1, 0, frameTime));
 	}

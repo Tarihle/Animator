@@ -1,6 +1,8 @@
 #include "CustomSimulation.h"
 
 #define SAMPLE_RATE 30
+#define FPS_TARGET 0.01666666666666667 // 60fps
+#define SLOW_FACTOR 10.f
 
 LM_::Vec3 g_Origin(0.f);
 LM_::Vec3 g_Red(1.f, 0.f, 0.f);
@@ -32,9 +34,9 @@ void CustomSimulation::Update(float frameTime)
 {
 	if (frameTime > 0.1f)
 	{
-		frameTime = 1.0f / 60.0f;
+		frameTime = FPS_TARGET;
 	}
-	//frameTime /= 10.0f;
+	// frameTime /= SLOW_FACTOR;
 
 	drawWorldMarker();
 
